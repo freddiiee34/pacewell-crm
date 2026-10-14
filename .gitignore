@@ -1,0 +1,20 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Fichiers de test temporaires
+tests/n8n/journal.jsonl
+tests/n8n/scenario.json
+
+# Python / Node
+__pycache__/
+.pytest_cache/
+node_modules/
+
+# Systèmes et éditeurs
+desktop.ini
+.DS_Store
+.vscode/
+.idea/
+*.log

@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pacewell · Des conseils running à ton allure</title>
+  <meta name="description" content="Dis-nous comment tu cours. Pacewell t'envoie des plans, des conseils et des sélections d'équipement adaptés à ta pratique, sur route comme en trail.">
+  <meta name="theme-color" content="#e8ebee">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --craie: #e8ebee;        /* fond : gris clair froid */
+      --papier: #ffffff;       /* le dossard */
+      --encre: #10213a;        /* texte : bleu nuit */
+      --encre-douce: #50607a;
+      --piste: #ff5a1f;        /* orange piste d'athlétisme */
+      --piste-fonce: #d9420e;
+      --metal: #a4aeb9;        /* épingles */
+      --trait: #c9d0d8;
+      --police: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0; background: var(--craie); color: var(--encre);
+      font: 400 17px/1.5 var(--police); font-variation-settings: "wdth" 100;
+    }
+    a { color: inherit; }
+    .page { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+    /* En-tête */
+    header { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; }
+    .logo {
+      font-weight: 900; font-size: 22px; letter-spacing: -0.02em; text-decoration: none;
+      font-variation-settings: "wdth" 125;
+    }
+    .logo svg { vertical-align: -3px; margin-right: 6px; }
+    header nav a { font-size: 15px; font-weight: 600; text-decoration: none; border-bottom: 2px solid var(--piste); padding-bottom: 2px; }
+
+    /* Hero : titre très étendu + profil de course */
+    .hero { padding: 56px 0 0; }
+    h1 {
+      margin: 0; font-weight: 900; line-height: 0.92; letter-spacing: -0.035em;
+      font-size: clamp(48px, 9.4vw, 136px); font-variation-settings: "wdth" 125;
+      max-width: 11ch;
+    }
+    .intro {
+      display: grid; grid-template-columns: 1fr 340px; gap: 40px; align-items: end;
+    }
+    .chapo { font-size: 19px; line-height: 1.5; color: var(--encre-douce); margin: 0 0 8px; max-width: 34ch; }
+
+    .profil { position: relative; margin: 48px -24px 0; height: 260px; }
+    .profil svg { display: block; width: 100%; height: 100%; overflow: visible; }
+    .profil .ligne {
+      fill: none; stroke: var(--encre); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round;
+      stroke-dasharray: 1; stroke-dashoffset: 1;
+      animation: tracer 2.6s cubic-bezier(.45, .05, .2, 1) .2s forwards;
+    }
+    .profil .aire { fill: url(#degrade); opacity: 0; animation: apparaitre .8s ease 2.4s forwards; }
+    /* Un repère : point orange sur le tracé, trait pointillé vers le haut, étiquette au-dessus */
+    .profil .repere {
+      position: absolute; left: var(--x); top: var(--y); width: 0; height: 0;
+      opacity: 0; animation: apparaitre .4s ease forwards;
+    }
+    .profil .repere::before {
+      content: ""; position: absolute; left: -7px; top: -7px; width: 14px; height: 14px; border-radius: 50%;
+      background: var(--piste); box-shadow: 0 0 0 3px var(--craie);
+    }
+    .profil .repere::after {
+      content: ""; position: absolute; left: 0; bottom: 10px; height: 44px; border-left: 1.5px dashed var(--encre);
+    }
+    .profil .repere b, .profil .repere span {
+      position: absolute; left: 8px; white-space: nowrap; line-height: 1.2;
+    }
+    .profil .repere b { bottom: 70px; font-size: 14px; font-weight: 700; font-variation-settings: "wdth" 112; }
+    .profil .repere span { bottom: 54px; font-size: 13px; color: var(--encre-douce); }
+    .profil .r4 b, .profil .r4 span { left: auto; right: 8px; }
+    .profil .r1 { animation-delay: .9s; } .profil .r2 { animation-delay: 1.35s; }
+    .profil .r3 { animation-delay: 1.9s; } .profil .r4 { animation-delay: 2.5s; }
+    @keyframes tracer { to { stroke-dashoffset: 0; } }
+    @keyframes apparaitre { to { opacity: 1; } }
+
+    /* Zone dossard */
+    .inscription {
+      display: grid; grid-template-columns: 1fr 1.25fr; gap: 64px; align-items: start;
+      padding: 72px 0 96px;
+    }
+    .pourquoi h2 {
+      font-size: clamp(30px, 3.6vw, 44px); line-height: 1.02; letter-spacing: -0.03em; margin: 0 0 20px;
+      font-weight: 850; font-variation-settings: "wdth" 118;
+    }
+    .pourquoi p { color: var(--encre-douce); margin: 0 0 28px; max-width: 38ch; }
+    .etapes { list-style: none; margin: 0; padding: 0; border-left: 3px solid var(--encre); }
+    .etapes li { position: relative; padding: 0 0 22px 24px; }
+    .etapes li:last-child { padding-bottom: 0; }
+    .etapes li::before {
+      content: ""; position: absolute; left: -9px; top: 6px; width: 15px; height: 15px; border-radius: 50%;
+      background: var(--craie); border: 3px solid var(--encre);
+    }
+    .etapes li:last-child::before { background: var(--piste); border-color: var(--piste); }
+    .etapes strong { display: block; font-size: 17px; }
+    .etapes span { color: var(--encre-douce); font-size: 15px; }
+
+    .dossard {
+      position: relative; background: var(--papier); border-radius: 14px;
+      box-shadow: 0 1px 0 var(--trait), 0 24px 48px -28px rgba(16, 33, 58, .45);
+      transform: rotate(-1.2deg);
+    }
+    .dossard::before, .dossard::after, .epingles::before, .epingles::after {
+      content: ""; position: absolute; width: 14px; height: 14px; border-radius: 50%;
+      background: var(--craie); box-shadow: inset 0 0 0 3px var(--metal);
+    }
+    .dossard::before { top: 14px; left: 14px; }
+    .dossard::after { top: 14px; right: 14px; }
+    .epingles::before { bottom: 14px; left: 14px; }
+    .epingles::after { bottom: 14px; right: 14px; }
+    .bande {
+      background: var(--piste); color: var(--papier); border-radius: 14px 14px 0 0;
+      padding: 18px 48px 16px; display: flex; justify-content: space-between; align-items: baseline;
+    }
+    .bande b { font-weight: 900; font-size: 20px; font-variation-settings: "wdth" 125; letter-spacing: -0.01em; }
+    .bande span { font-size: 14px; font-weight: 600; }
+    .numero {
+      text-align: center; padding: 18px 40px 6px; border-bottom: 2px dashed var(--trait);
+      font-weight: 900; font-variation-settings: "wdth" 125; letter-spacing: -0.04em; line-height: 1;
+      font-size: clamp(64px, 9vw, 104px); color: var(--trait); font-variant-numeric: tabular-nums;
+    }
+    .numero small { display: block; font-size: 14px; letter-spacing: 0; font-weight: 600; color: var(--encre-douce); margin: 8px 0 12px; font-variation-settings: "wdth" 100; }
+
+    form { padding: 28px 44px 44px; }
+    .ligne { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 22px; }
+    .champ label, legend { display: block; font-size: 14px; font-weight: 700; margin: 0 0 8px; padding: 0; }
+    input[type=text], input[type=email] {
+      width: 100%; font: 400 17px var(--police); padding: 13px 14px; border-radius: 8px;
+      border: 2px solid var(--trait); background: var(--papier); color: var(--encre);
+    }
+    input[type=text]:focus, input[type=email]:focus { outline: none; border-color: var(--encre); }
+    input::placeholder { color: #9aa5b3; }
+    fieldset { border: 0; margin: 0 0 20px; padding: 0; }
+    .choix { display: flex; flex-wrap: wrap; gap: 8px; }
+    .choix input { position: absolute; opacity: 0; pointer-events: none; }
+    .choix label {
+      cursor: pointer; padding: 9px 14px; border-radius: 8px; font-size: 15px; font-weight: 600;
+      border: 2px solid var(--trait); transition: background .12s, border-color .12s, color .12s;
+    }
+    .choix label:hover { border-color: var(--encre); }
+    .choix input:checked + label { background: var(--encre); border-color: var(--encre); color: var(--papier); }
+    .choix input:focus-visible + label { outline: 3px solid var(--piste); outline-offset: 2px; }
+
+    .case { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; line-height: 1.5; color: var(--encre-douce); cursor: pointer; margin-top: 6px; }
+    .case input { margin: 2px 0 0; width: 17px; height: 17px; flex: none; accent-color: var(--encre); }
+    .piege { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+    button {
+      width: 100%; margin-top: 22px; cursor: pointer; border: 0; border-radius: 10px; padding: 17px 24px;
+      font: 800 18px var(--police); font-variation-settings: "wdth" 112; letter-spacing: -0.01em;
+      background: var(--piste); color: var(--papier); transition: background .15s;
+    }
+    button:hover { background: var(--piste-fonce); }
+    button:focus-visible { outline: 3px solid var(--encre); outline-offset: 3px; }
+    button:disabled { opacity: .7; cursor: progress; }
+    .message { margin: 14px 0 0; font-size: 15px; font-weight: 600; min-height: 1.5em; color: #c2260f; }
+
+    .merci { display: none; padding: 30px 44px 52px; text-align: center; }
+    .merci h3 { font-size: 30px; line-height: 1.05; margin: 0 0 10px; font-weight: 850; font-variation-settings: "wdth" 118; letter-spacing: -0.02em; }
+    .merci p { color: var(--encre-douce); margin: 0 auto; max-width: 32ch; }
+    .dossard.inscrit form { display: none; }
+    .dossard.inscrit .merci { display: block; }
+    .dossard.inscrit .numero { color: var(--encre); }
+    .dossard.inscrit .numero span { display: inline-block; animation: tampon .5s cubic-bezier(.2, 1.6, .4, 1) both; }
+
+    @keyframes tampon {
+      0% { transform: scale(2.2) rotate(-8deg); opacity: 0; }
+      100% { transform: none; opacity: 1; }
+    }
+
+    footer { border-top: 2px solid var(--encre); padding: 22px 0 40px; font-size: 13px; line-height: 1.6; color: var(--encre-douce); }
+
+    @media (max-width: 880px) {
+      .intro { grid-template-columns: 1fr; gap: 20px; }
+      .inscription { grid-template-columns: 1fr; gap: 48px; padding-top: 48px; }
+      .dossard { transform: none; }
+    }
+    @media (max-width: 520px) {
+      .page { padding: 0 16px; }
+      .profil { margin: 32px -16px 0; }
+      .bande { padding: 16px 40px 14px; }
+      form { padding: 22px 22px 40px; }
+      .merci { padding: 24px 22px 44px; }
+      .ligne { grid-template-columns: 1fr; }
+      .profil { height: 190px; }
+      .profil .repere::after { height: 30px; }
+      .profil .repere b { bottom: 54px; font-size: 13px; }
+      .profil .repere span { bottom: 40px; font-size: 11.5px; }
+      .profil .r3 b, .profil .r3 span { left: auto; right: 8px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .profil .ligne, .profil .aire, .profil .repere, .dossard.inscrit .numero span {
+        animation: none; stroke-dashoffset: 0; opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <a class="logo" href="#" aria-label="Pacewell, accueil">
+        <svg width="26" height="18" viewBox="0 0 26 18" aria-hidden="true"><path d="M1 16 L8 6 L13 11 L18 2 L25 16" fill="none" stroke="#ff5a1f" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/></svg>pacewell
+      </a>
+      <nav><a href="#dossard">S'inscrire</a></nav>
+    </header>
+
+    <section class="hero">
+      <div class="intro">
+        <h1>Dis-nous comment tu cours.</h1>
+        <p class="chapo">On t'envoie ce qui te sert vraiment : plans, conseils et équipement. Sur route ou en trail, que tu reprennes ou que tu vises un ultra.</p>
+      </div>
+
+      <div class="profil" aria-hidden="true">
+        <svg viewBox="0 0 1200 260" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="degrade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#10213a" stop-opacity=".10"/>
+              <stop offset="1" stop-color="#10213a" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path class="aire" d="M0 230 L120 228 L210 222 L300 226 L380 214 L460 218 L540 196 L600 204 L660 170 L720 182 L790 120 L840 140 L900 70 L950 96 L1010 40 L1060 78 L1120 52 L1200 90 L1200 260 L0 260 Z"/>
+          <path class="ligne" pathLength="1" vector-effect="non-scaling-stroke" d="M0 230 L120 228 L210 222 L300 226 L380 214 L460 218 L540 196 L600 204 L660 170 L720 182 L790 120 L840 140 L900 70 L950 96 L1010 40 L1060 78 L1120 52 L1200 90"/>
+        </svg>
+        <!-- Repères en HTML, placés en % des coordonnées du tracé : ils restent nets à toutes les tailles. -->
+        <div class="repere r1" style="--x: 25%; --y: 86.9%"><b>10 km</b><span>route</span></div>
+        <div class="repere r2" style="--x: 45%; --y: 75.4%"><b>Semi</b><span>21,1 km</span></div>
+        <div class="repere r3" style="--x: 65.8%; --y: 46.2%"><b>Marathon</b><span>42,195 km</span></div>
+        <div class="repere r4" style="--x: 84.2%; --y: 15.4%"><b>Ultra</b><span>80 km et plus</span></div>
+      </div>
+    </section>
+
+    <section class="inscription" id="dossard">
+      <div class="pourquoi">
+        <h2>Un dossard, quatre questions.</h2>
+        <p>Pas de newsletter générique : tes réponses décident de ce que tu reçois. Un débutant sur route n'a pas besoin des mêmes conseils qu'un traileur qui prépare un ultra.</p>
+        <ol class="etapes">
+          <li><strong>Tu remplis ton dossard</strong><span>Ta pratique, ton rythme, ton objectif, ton budget.</span></li>
+          <li><strong>On te situe</strong><span>Tes réponses définissent ton profil de coureur.</span></li>
+          <li><strong>Tu reçois tes conseils</strong><span>Deux emails par mois au maximum, désinscription en un clic.</span></li>
+        </ol>
+      </div>
+
+      <div class="dossard" id="carte">
+        <div class="epingles"></div>
+        <div class="bande"><b>pacewell</b><span>Saison 2026</span></div>
+        <div class="numero" aria-live="polite"><span id="num">0000</span><small id="num-legende">Ton numéro s'affiche à l'inscription</small></div>
+
+        <form id="inscription" novalidate>
+          <div class="ligne">
+            <div class="champ">
+              <label for="prenom">Prénom</label>
+              <input id="prenom" name="prenom" type="text" autocomplete="given-name" maxlength="60" placeholder="Julie">
+            </div>
+            <div class="champ">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email" required maxlength="200" placeholder="julie@exemple.fr">
+            </div>
+          </div>
+
+          <fieldset>
+            <legend>Tu cours plutôt</legend>
+            <div class="choix">
+              <input type="radio" id="p-route" name="pratique" value="route"><label for="p-route">Sur route</label>
+              <input type="radio" id="p-trail" name="pratique" value="trail"><label for="p-trail">En trail</label>
+              <input type="radio" id="p-deux" name="pratique" value="les-deux"><label for="p-deux">Les deux</label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Sorties par semaine</legend>
+            <div class="choix">
+              <input type="radio" id="f-1" name="frequence" value="moins-1"><label for="f-1">Moins d'une</label>
+              <input type="radio" id="f-2" name="frequence" value="1-2"><label for="f-2">1 à 2</label>
+              <input type="radio" id="f-3" name="frequence" value="3-4"><label for="f-3">3 à 4</label>
+              <input type="radio" id="f-4" name="frequence" value="5-plus"><label for="f-4">5 et plus</label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Ton objectif du moment</legend>
+            <div class="choix">
+              <input type="radio" id="o-forme" name="objectif" value="forme"><label for="o-forme">Garder la forme</label>
+              <input type="radio" id="o-10" name="objectif" value="10km"><label for="o-10">10 km</label>
+              <input type="radio" id="o-semi" name="objectif" value="semi"><label for="o-semi">Semi</label>
+              <input type="radio" id="o-mara" name="objectif" value="marathon"><label for="o-mara">Marathon</label>
+              <input type="radio" id="o-tc" name="objectif" value="trail-court"><label for="o-tc">Trail court</label>
+              <input type="radio" id="o-ultra" name="objectif" value="ultra"><label for="o-ultra">Ultra</label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Budget équipement sur un an</legend>
+            <div class="choix">
+              <input type="radio" id="b-1" name="budget" value="moins-150"><label for="b-1">Moins de 150 €</label>
+              <input type="radio" id="b-2" name="budget" value="150-400"><label for="b-2">150 à 400 €</label>
+              <input type="radio" id="b-3" name="budget" value="400-plus"><label for="b-3">Plus de 400 €</label>
+            </div>
+          </fieldset>
+
+          <div class="piege" aria-hidden="true">
+            <label for="site_web">Ne pas remplir</label>
+            <input id="site_web" name="site_web" type="text" tabindex="-1" autocomplete="off">
+          </div>
+
+          <label class="case">
+            <input type="checkbox" name="consentement" value="oui">
+            <span>J'accepte de recevoir les emails de Pacewell, personnalisés selon mes réponses. Désinscription possible à tout moment depuis chaque email.</span>
+          </label>
+
+          <button type="submit" id="bouton">Recevoir mes conseils</button>
+          <p class="message" id="message" role="alert"></p>
+        </form>
+
+        <div class="merci" id="merci" tabindex="-1">
+          <h3>Dossard validé, <span id="merci-prenom">bienvenue</span>.</h3>
+          <p>Tes premiers conseils arrivent très vite dans ta boîte mail, pensés pour ta façon de courir.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Pacewell est une marque fictive : cette page est un projet de démonstration de Simon Delrue (automatisation CRM et IA).
+      Les adresses saisies servent uniquement à recevoir les emails de démonstration et peuvent être supprimées sur simple demande.
+    </footer>
+  </div>
+
+  <script>
+    // Adresse du webhook n8n (workflow « Pacewell · Qualification des inscrits »).
+    const WEBHOOK = "https://n8n.simondelrue.fr/webhook/pacewell-inscription";
+
+    const form = document.getElementById("inscription");
+    const carte = document.getElementById("carte");
+    const bouton = document.getElementById("bouton");
+    const message = document.getElementById("message");
+    const coche = (nom) => form.querySelector(`[name="${nom}"]:checked`);
+
+    function verifier() {
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(form.elements.email.value.trim())) return "Ton adresse email ne semble pas valide.";
+      const questions = { pratique: "où tu cours", frequence: "ton nombre de sorties", objectif: "ton objectif", budget: "ton budget" };
+      for (const [nom, texte] of Object.entries(questions)) if (!coche(nom)) return `Il manque ${texte}.`;
+      if (!form.elements.consentement.checked) return "Coche la case pour recevoir nos emails.";
+      return "";
+    }
+
+    // Numéro de dossard : dérivé de l'email, pour qu'il soit le même à chaque visite.
+    function numeroDossard(email) {
+      let h = 0;
+      for (const c of email.toLowerCase()) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+      return String(1000 + (h % 9000));
+    }
+
+    form.addEventListener("submit", async (evt) => {
+      evt.preventDefault();
+      message.textContent = verifier();
+      if (message.textContent) return;
+
+      bouton.disabled = true;
+      bouton.textContent = "Validation du dossard…";
+      const donnees = {
+        prenom: form.elements.prenom.value, email: form.elements.email.value,
+        pratique: coche("pratique").value, frequence: coche("frequence").value,
+        objectif: coche("objectif").value, budget: coche("budget").value,
+        consentement: "oui", site_web: form.elements.site_web.value,
+      };
+      try {
+        const rep = await fetch(WEBHOOK, {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(donnees),
+        });
+        const corps = await rep.json().catch(() => ({}));
+        if (!rep.ok || !corps.ok) throw new Error(corps.erreur || "L'inscription n'est pas passée. Réessaie dans un instant.");
+        document.getElementById("num").textContent = numeroDossard(donnees.email);
+        document.getElementById("num-legende").textContent = "Ton numéro de dossard";
+        const prenom = donnees.prenom.trim();
+        if (prenom) document.getElementById("merci-prenom").textContent = prenom;
+        carte.classList.add("inscrit");
+        document.getElementById("merci").focus();
+      } catch (e) {
+        message.textContent = e.message.includes("fetch") ? "Connexion impossible. Vérifie ta connexion et réessaie." : e.message;
+        bouton.disabled = false;
+        bouton.textContent = "Recevoir mes conseils";
+      }
+    });
+  </script>
+</body>
+</html>

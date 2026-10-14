@@ -1,0 +1,576 @@
+{
+  "name": "Pacewell · Qualification des inscrits",
+  "nodes": [
+    {
+      "id": "83d69542-1ef8-529b-b555-37bb619c1458",
+      "name": "Formulaire Pacewell",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pacewell-inscription",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "https://pacewell.simondelrue.fr"
+        }
+      },
+      "webhookId": "aea19341-43e2-5b56-9ec8-e54c768285d3"
+    },
+    {
+      "id": "6116501d-9fcb-5db4-949f-5055a8d3b562",
+      "name": "Configuration",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Configuration du workflow « Qualification ».\n// C'est le seul nœud à modifier après l'import : renseigne les ID des listes\n// Brevo affichés par scripts/setup_brevo.py.\nconst config = {\n  marque: 'Pacewell',\n  modele: 'claude-haiku-5-5',\n  // Tarifs Claude Haiku 5.5 (USD par million de tokens, prompts < 100k tokens).\n  // Source : platform.claude.com/docs/en/about-claude/pricing — à revérifier de temps en temps.\n  prixEntreeParMillion: 0.10,\n  prixSortieParMillion: 0.50,\n  seuilLeadChaud: 70,\n  emailAlerte: 'simondelruepro@gmail.com',\n  expediteur: { email: 'audit@simondelrue.fr', name: 'Pacewell CRM' },\n  delaiDoublonJours: 7,\n  // Adresses des API (modifiables pour les tests).\n  urlBrevo: 'https://api.brevo.com/v3',\n  urlClaude: 'https://api.anthropic.com/v1',\n  listes: {\n    ROUTE_DEBUTANT: 0,\n    ROUTE_PERF: 0,\n    TRAIL_DECOUVERTE: 0,\n    TRAIL_ENDURANCE: 0,\n    A_QUALIFIER: 0,\n  },\n};\n\n// Le webhook range le formulaire dans `body`.\nreturn { formulaire: $json.body ?? {}, config };\n"
+      }
+    },
+    {
+      "id": "15b74f3c-4cc8-5de4-9265-2f65310b6938",
+      "name": "Nettoyer et valider",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Nettoie et valide les réponses du formulaire.\n// Sortie : { ok, erreur?, lead? }. Un lead invalide ne va jamais jusqu'à l'IA ni à Brevo.\nconst CHOIX = {\n  pratique: ['route', 'trail', 'les-deux'],\n  frequence: ['moins-1', '1-2', '3-4', '5-plus'],\n  objectif: ['forme', '10km', 'semi', 'marathon', 'trail-court', 'ultra'],\n  budget: ['moins-150', '150-400', '400-plus'],\n};\nconst f = $json.formulaire || {};\nconst texte = (v, max) => String(v ?? '').trim().replace(/\\s+/g, ' ').slice(0, max);\n\nif (texte(f.site_web, 200)) {\n  return { ok: false, erreur: 'spam' }; // champ piège rempli : un robot\n}\n\nconst lead = {\n  email: texte(f.email, 200).toLowerCase(),\n  prenom: texte(f.prenom, 60).replace(/[<>]/g, ''),\n  pratique: texte(f.pratique, 20),\n  frequence: texte(f.frequence, 20),\n  objectif: texte(f.objectif, 20),\n  budget: texte(f.budget, 20),\n  consentement: f.consentement === true || f.consentement === 'oui' || f.consentement === 'on',\n};\n\nif (!/^[^@\\s]+@[^@\\s]+\\.[^@\\s]{2,}$/.test(lead.email)) {\n  return { ok: false, erreur: 'Adresse email invalide.' };\n}\nif (!lead.consentement) {\n  return { ok: false, erreur: 'Le consentement est obligatoire pour recevoir nos emails.' };\n}\nfor (const [champ, valeurs] of Object.entries(CHOIX)) {\n  if (!valeurs.includes(lead[champ])) {\n    return { ok: false, erreur: `Réponse invalide pour « ${champ} ».` };\n  }\n}\nreturn { ok: true, lead };\n"
+      }
+    },
+    {
+      "id": "a1f2fa92-1b92-504d-9bd9-e70bb5b10f93",
+      "name": "Entrée valide ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8104980f-be4a-5192-a17e-316da539f1ce",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "12d268c9-adfa-5420-b627-e2577607ed5a",
+      "name": "Réponse : refus",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        520
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, erreur: $json.erreur === 'spam' ? 'Demande refusée.' : $json.erreur }) }}",
+        "options": {
+          "responseCode": 400
+        }
+      }
+    },
+    {
+      "id": "5b9c9fc1-336f-5521-bd92-dc50743c4ccd",
+      "name": "Brevo : contact existant ?",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Configuration').item.json.config.urlBrevo }}/contacts/{{ encodeURIComponent($json.lead.email) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Brevo API"
+        }
+      }
+    },
+    {
+      "id": "f2b8076f-d940-5e62-8f6e-c6a360189dc1",
+      "name": "Dédoublonner",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Dédoublonnage. Entrée : la réponse brute de Brevo (GET /contacts/{email}).\n// - Nouveau contact (404) : on qualifie.\n// - Contact déjà qualifié avec les mêmes réponses il y a moins de N jours :\n//   on ne rappelle pas l'IA (économie de coût), on réutilise sa qualification.\n// - Sinon (réponses changées ou qualification ancienne) : on requalifie.\nconst { lead } = $('Nettoyer et valider').item.json;\nconst { config } = $('Configuration').item.json;\nconst statut = $json.statusCode;\nconst contact = statut === 200 ? ($json.body || {}) : null;\nconst a = (contact && contact.attributes) || {};\n\nconst memesReponses = contact\n  && a.PRATIQUE === lead.pratique && a.FREQUENCE === lead.frequence\n  && a.OBJECTIF === lead.objectif && a.BUDGET === lead.budget;\nconst qualifieLe = a.QUALIFIE_LE ? new Date(a.QUALIFIE_LE) : null;\nconst recent = qualifieLe && (Date.now() - qualifieLe.getTime()) < config.delaiDoublonJours * 86400000;\n\nif (memesReponses && recent && a.SEGMENT && a.SEGMENT !== 'A_QUALIFIER') {\n  return {\n    lead,\n    doublon: true,\n    existant: true,\n    qualification: {\n      segment: a.SEGMENT, niveau: a.NIVEAU, score: Number(a.SCORE) || 0,\n      raison: a.RAISON_IA || '', source: 'doublon', cout_usd: 0,\n    },\n  };\n}\nreturn { lead, doublon: false, existant: Boolean(contact) };\n"
+      }
+    },
+    {
+      "id": "0973627c-0fbe-50ee-9635-a947d0bacffc",
+      "name": "Déjà qualifié ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1320,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "343f7222-636f-5d1e-b8fe-9c1ed87b3609",
+              "leftValue": "={{ $json.doublon }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "e35b518a-5952-57fb-a1fc-8b94622773a0",
+      "name": "Préparer le prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        400
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Prépare la requête envoyée à Claude.\n// Minimisation des données (RGPD) : l'IA ne reçoit NI l'email NI le prénom,\n// seulement les réponses au questionnaire.\nconst { lead } = $json;\nconst { config } = $('Configuration').item.json;\n\nconst consignes = `Tu es l'outil de qualification CRM de ${config.marque}, une boutique en ligne de running et de trail.\nÀ partir des réponses d'un nouvel inscrit, tu le classes pour personnaliser ses emails.\n\nSegments possibles (choisis-en exactement un) :\n- ROUTE_DEBUTANT : court sur route, débute ou reprend, objectif forme ou 10 km, 2 sorties par semaine maximum.\n- ROUTE_PERF : court sur route avec un objectif chronométré (semi, marathon) ou 3 sorties et plus par semaine.\n- TRAIL_DECOUVERTE : découvre le trail, objectif forme ou trail court, pratique occasionnelle à régulière.\n- TRAIL_ENDURANCE : trail engagé, objectif ultra, ou trail avec 3 sorties et plus par semaine.\nRègles : « route » donne toujours un segment ROUTE_*, « trail » toujours un segment TRAIL_*.\nPour « les-deux », l'objectif tranche (trail-court ou ultra : TRAIL_* ; sinon ROUTE_*).\n\nNiveau : debutant, intermediaire ou confirme.\nScore de 1 à 100 : potentiel commercial sur un an (fréquence de pratique, budget annuel, ambition de l'objectif).\nRepères : moins d'une sortie et budget faible, autour de 15 ; pratique régulière et budget moyen, autour de 50 ;\npratique intensive, budget élevé et objectif ambitieux, au-delà de 80.\n\nRéponds UNIQUEMENT avec un objet JSON, sans texte autour :\n{\"segment\": \"...\", \"niveau\": \"...\", \"score\": 0, \"raison\": \"une phrase de 25 mots maximum\"}`;\n\nconst reponses = {\n  pratique: lead.pratique,\n  sorties_par_semaine: lead.frequence,\n  objectif: lead.objectif,\n  budget_annuel_equipement_euros: lead.budget,\n};\n\nreturn {\n  requete: {\n    model: config.modele,\n    max_tokens: 300,\n    system: consignes,\n    messages: [{ role: 'user', content: 'Réponses du formulaire :\\n' + JSON.stringify(reponses, null, 1) }],\n  },\n};\n"
+      }
+    },
+    {
+      "id": "479d4852-38f3-598d-827f-c308ce64df70",
+      "name": "Claude : qualifier",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1760,
+        400
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configuration').item.json.config.urlClaude }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 30000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.requete) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Claude API"
+        }
+      }
+    },
+    {
+      "id": "08dcc79f-9bc4-5df0-877e-17e1bb6fa2f5",
+      "name": "Valider la réponse IA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        400
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Valide la réponse de Claude. Garde-fou principal du workflow :\n// toute réponse absente, illisible ou incohérente envoie le contact\n// dans le segment par défaut A_QUALIFIER, avec la raison du repli.\nconst SEGMENTS = ['ROUTE_DEBUTANT', 'ROUTE_PERF', 'TRAIL_DECOUVERTE', 'TRAIL_ENDURANCE'];\nconst NIVEAUX = ['debutant', 'intermediaire', 'confirme'];\nconst { lead } = $('Dédoublonner').item.json;\nconst { config } = $('Configuration').item.json;\n\nconst repli = (motif, cout = 0) => ({\n  lead,\n  qualification: {\n    segment: 'A_QUALIFIER', niveau: '', score: 0,\n    raison: `Qualification automatique impossible (${motif}).`,\n    source: 'repli', cout_usd: cout,\n  },\n});\n\nconst statut = $json.statusCode;\nconst corps = $json.body || {};\nconst usage = corps.usage || {};\nconst cout = ((usage.input_tokens || 0) * config.prixEntreeParMillion\n  + (usage.output_tokens || 0) * config.prixSortieParMillion) / 1e6;\n\nif (statut !== 200) {\n  return repli(`API ${statut || 'injoignable'}`, 0);\n}\n\nconst texte = (corps.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('');\nlet r;\ntry {\n  const debut = texte.indexOf('{');\n  const fin = texte.lastIndexOf('}');\n  r = JSON.parse(texte.slice(debut, fin + 1));\n} catch (e) {\n  return repli('JSON illisible', cout);\n}\n\nconst score = Number(r.score);\nif (!SEGMENTS.includes(r.segment)) return repli('segment inconnu', cout);\nif (!NIVEAUX.includes(r.niveau)) return repli('niveau inconnu', cout);\nif (!Number.isInteger(score) || score < 1 || score > 100) return repli('score hors bornes', cout);\nif (typeof r.raison !== 'string' || !r.raison.trim()) return repli('raison absente', cout);\n// Cohérence avec les réponses : l'IA ne peut pas classer un coureur sur route dans le trail.\nif (lead.pratique === 'route' && !r.segment.startsWith('ROUTE')) return repli('segment incohérent', cout);\nif (lead.pratique === 'trail' && !r.segment.startsWith('TRAIL')) return repli('segment incohérent', cout);\n\nreturn {\n  lead,\n  qualification: {\n    segment: r.segment, niveau: r.niveau, score,\n    raison: r.raison.trim().slice(0, 250),\n    source: 'ia', cout_usd: Math.round(cout * 1e6) / 1e6,\n  },\n};\n"
+      }
+    },
+    {
+      "id": "fd3a92df-21b6-5015-8ae4-7ae513a49c62",
+      "name": "Préparer Brevo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        400
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Prépare la création ou la mise à jour du contact dans Brevo (upsert).\n// Le contact est ajouté à la liste de son segment et retiré des autres,\n// pour qu'un changement de profil ne le laisse pas dans deux parcours.\nconst { lead, qualification: q } = $json;\nconst { config } = $('Configuration').item.json;\nconst idListe = config.listes[q.segment];\nconst autres = Object.values(config.listes).filter((id) => id && id !== idListe);\n\nreturn {\n  lead,\n  qualification: q,\n  contact: {\n    email: lead.email,\n    updateEnabled: true,\n    attributes: {\n      PRENOM: lead.prenom,\n      PRATIQUE: lead.pratique,\n      FREQUENCE: lead.frequence,\n      OBJECTIF: lead.objectif,\n      BUDGET: lead.budget,\n      SEGMENT: q.segment,\n      NIVEAU: q.niveau,\n      SCORE: q.score,\n      RAISON_IA: q.raison,\n      SOURCE_QUALIF: q.source,\n      COUT_IA_USD: q.cout_usd,\n      QUALIFIE_LE: new Date().toISOString().slice(0, 10),\n    },\n    listIds: idListe ? [idListe] : [],\n    unlinkListIds: autres,\n  },\n  leadChaud: q.score >= config.seuilLeadChaud,\n};\n"
+      }
+    },
+    {
+      "id": "7407c00b-3387-564a-a232-ab8a04f67c24",
+      "name": "Brevo : créer ou mettre à jour",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2420,
+        400
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configuration').item.json.config.urlBrevo }}/contacts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.contact) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Brevo API"
+        }
+      }
+    },
+    {
+      "id": "315c1973-8836-5360-86bf-dbbe131163fa",
+      "name": "Lead chaud ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2640,
+        400
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1a651743-a7c5-5a38-8329-af93923b415d",
+              "leftValue": "={{ $('Préparer Brevo').item.json.leadChaud }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "be43c05b-dbc0-5d5c-a382-2dbab39f481b",
+      "name": "Préparer l'alerte",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2860,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Email d'alerte « lead chaud », envoyé via l'API transactionnelle Brevo.\nconst { lead, qualification: q } = $('Préparer Brevo').item.json;\nconst { config } = $('Configuration').item.json;\nconst e = (s) => String(s ?? '').replace(/[&<>\"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' }[c]));\n\nconst lignes = [\n  ['Prénom', lead.prenom], ['Email', lead.email], ['Segment', q.segment], ['Niveau', q.niveau],\n  ['Score', `${q.score}/100`], ['Pourquoi', q.raison], ['Pratique', lead.pratique],\n  ['Sorties/semaine', lead.frequence], ['Objectif', lead.objectif], ['Budget annuel', lead.budget],\n].map(([k, v]) => `<tr><td style=\"padding:6px 14px 6px 0;color:#6e6e73\">${e(k)}</td><td style=\"padding:6px 0\">${e(v)}</td></tr>`).join('');\n\nreturn {\n  email: {\n    sender: config.expediteur,\n    to: [{ email: config.emailAlerte }],\n    replyTo: { email: lead.email },\n    subject: `🔥 Lead chaud ${config.marque} : ${lead.prenom || lead.email} (${q.score}/100)`,\n    htmlContent: `<div style=\"font-family:-apple-system,Helvetica,Arial,sans-serif;color:#1d1d1f\">\n<h2 style=\"margin:0 0 12px\">Nouveau lead chaud : ${q.score}/100</h2>\n<table style=\"font-size:15px;border-collapse:collapse\">${lignes}</table>\n<p style=\"color:#6e6e73;font-size:13px\">Répondre à cet email écrit directement au lead.</p></div>`,\n    tags: ['pacewell-alerte'],\n  },\n};\n"
+      }
+    },
+    {
+      "id": "78fcb36e-cc4e-57c8-b24a-e038c115f274",
+      "name": "Brevo : envoyer l'alerte",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3080,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configuration').item.json.config.urlBrevo }}/smtp/email",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.email) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Brevo API"
+        }
+      }
+    },
+    {
+      "id": "1aabb81e-7bc8-5514-b4ff-b48de1fa07a7",
+      "name": "Réponse : inscrit",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        3300,
+        400
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Formulaire Pacewell": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuration": {
+      "main": [
+        [
+          {
+            "node": "Nettoyer et valider",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nettoyer et valider": {
+      "main": [
+        [
+          {
+            "node": "Entrée valide ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Entrée valide ?": {
+      "main": [
+        [
+          {
+            "node": "Brevo : contact existant ?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Réponse : refus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brevo : contact existant ?": {
+      "main": [
+        [
+          {
+            "node": "Dédoublonner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dédoublonner": {
+      "main": [
+        [
+          {
+            "node": "Déjà qualifié ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Déjà qualifié ?": {
+      "main": [
+        [
+          {
+            "node": "Réponse : inscrit",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Préparer le prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer le prompt": {
+      "main": [
+        [
+          {
+            "node": "Claude : qualifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude : qualifier": {
+      "main": [
+        [
+          {
+            "node": "Valider la réponse IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valider la réponse IA": {
+      "main": [
+        [
+          {
+            "node": "Préparer Brevo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer Brevo": {
+      "main": [
+        [
+          {
+            "node": "Brevo : créer ou mettre à jour",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brevo : créer ou mettre à jour": {
+      "main": [
+        [
+          {
+            "node": "Lead chaud ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead chaud ?": {
+      "main": [
+        [
+          {
+            "node": "Préparer l'alerte",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Réponse : inscrit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer l'alerte": {
+      "main": [
+        [
+          {
+            "node": "Brevo : envoyer l'alerte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brevo : envoyer l'alerte": {
+      "main": [
+        [
+          {
+            "node": "Réponse : inscrit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "active": false
+}
