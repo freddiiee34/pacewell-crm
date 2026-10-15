@@ -1,0 +1,620 @@
+{
+ "date": "2026-10-15",
+ "modele": "claude-haiku-5-5",
+ "profils": 30,
+ "segmentsCorrects": 30,
+ "temperaturesCorrectes": 29,
+ "replis": 0,
+ "coutTotalUsd": 0.003618,
+ "source": "Workflow n8n « Pacewell · Évaluation de l'IA », exécution du 15 octobre 2026",
+ "details": [
+  {
+   "id": 1,
+   "profil": "route · moins-1 · forme · moins-150",
+   "note": "Reprise très légère, petit budget",
+   "attendu": {
+    "segment": "ROUTE_DEBUTANT",
+    "temperatures": [
+     "froid"
+    ]
+   },
+   "obtenu": {
+    "segment": "ROUTE_DEBUTANT",
+    "score": 15,
+    "temperature": "froid",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000119
+  },
+  {
+   "id": 2,
+   "profil": "route · 1-2 · 10km · moins-150",
+   "note": "Débutant 10 km, petit budget",
+   "attendu": {
+    "segment": "ROUTE_DEBUTANT",
+    "temperatures": [
+     "froid"
+    ]
+   },
+   "obtenu": {
+    "segment": "ROUTE_DEBUTANT",
+    "score": 25,
+    "temperature": "froid",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000122
+  },
+  {
+   "id": 3,
+   "profil": "route · 1-2 · forme · 150-400",
+   "note": "Forme, budget moyen",
+   "attendu": {
+    "segment": "ROUTE_DEBUTANT",
+    "temperatures": [
+     "froid",
+     "tiede"
+    ]
+   },
+   "obtenu": {
+    "segment": "ROUTE_DEBUTANT",
+    "score": 40,
+    "temperature": "tiede",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000118
+  },
+  {
+   "id": 4,
+   "profil": "route · 1-2 · 10km · 400-plus",
+   "note": "Débutant mais gros budget",
+   "attendu": {
+    "segment": "ROUTE_DEBUTANT",
+    "temperatures": [
+     "tiede"
+    ]
+   },
+   "obtenu": {
+    "segment": "ROUTE_DEBUTANT",
+    "score": 45,
+    "temperature": "tiede",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000124
+  },
+  {
+   "id": 5,
+   "profil": "route · moins-1 · 10km · 150-400",
+   "note": "Occasionnel, budget moyen",
+   "attendu": {
+    "segment": "ROUTE_DEBUTANT",
+    "temperatures": [
+     "froid",
+     "tiede"
+    ]
+   },
+   "obtenu": {
+    "segment": "ROUTE_DEBUTANT",
+    "score": 25,
+    "temperature": "froid",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000117
+  },
+  {
+   "id": 6,
+   "profil": "route · 3-4 · 10km · 150-400",
+   "note": "10 km régulier",
+   "attendu": {
+    "segment": "ROUTE_PERF",
+    "temperatures": [
+     "tiede"
+    ]
+   },
+   "obtenu": {
+    "segment": "ROUTE_PERF",
+    "score": 45,
+    "temperature": "tiede",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000121
+  },
+  {
+   "id": 7,
+   "profil": "route · 1-2 · semi · 150-400",
+   "note": "Semi, objectif chronométré",
+   "attendu": {
+    "segment": "ROUTE_PERF",
+    "temperatures": [
+     "tiede"
+    ]
+   },
+   "obtenu": {
+    "segment": "ROUTE_PERF",
+    "score": 55,
+    "temperature": "tiede",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000115
+  },
+  {
+   "id": 8,
+   "profil": "route · 3-4 · marathon · 400-plus",
+   "note": "Marathonien équipé",
+   "attendu": {
+    "segment": "ROUTE_PERF",
+    "temperatures": [
+     "chaud"
+    ]
+   },
+   "obtenu": {
+    "segment": "ROUTE_PERF",
+    "score": 78,
+    "temperature": "chaud",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000116
+  },
+  {
+   "id": 9,
+   "profil": "route · 5-plus · marathon · 400-plus",
+   "note": "Marathonien intensif",
+   "attendu": {
+    "segment": "ROUTE_PERF",
+    "temperatures": [
+     "chaud"
+    ]
+   },
+   "obtenu": {
+    "segment": "ROUTE_PERF",
+    "score": 85,
+    "temperature": "chaud",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000115
+  },
+  {
+   "id": 10,
+   "profil": "route · 5-plus · semi · 150-400",
+   "note": "Très régulier, budget moyen",
+   "attendu": {
+    "segment": "ROUTE_PERF",
+    "temperatures": [
+     "tiede",
+     "chaud"
+    ]
+   },
+   "obtenu": {
+    "segment": "ROUTE_PERF",
+    "score": 60,
+    "temperature": "tiede",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000115
+  },
+  {
+   "id": 11,
+   "profil": "route · 3-4 · forme · moins-150",
+   "note": "Régulier sans objectif, petit budget",
+   "attendu": {
+    "segment": "ROUTE_PERF",
+    "temperatures": [
+     "froid",
+     "tiede"
+    ]
+   },
+   "obtenu": {
+    "segment": "ROUTE_PERF",
+    "score": 35,
+    "temperature": "froid",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000118
+  },
+  {
+   "id": 12,
+   "profil": "route · 1-2 · marathon · moins-150",
+   "note": "Marathon ambitieux, petit budget",
+   "attendu": {
+    "segment": "ROUTE_PERF",
+    "temperatures": [
+     "froid",
+     "tiede"
+    ]
+   },
+   "obtenu": {
+    "segment": "ROUTE_PERF",
+    "score": 35,
+    "temperature": "froid",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000117
+  },
+  {
+   "id": 13,
+   "profil": "trail · moins-1 · forme · moins-150",
+   "note": "Curieux du trail",
+   "attendu": {
+    "segment": "TRAIL_DECOUVERTE",
+    "temperatures": [
+     "froid"
+    ]
+   },
+   "obtenu": {
+    "segment": "TRAIL_DECOUVERTE",
+    "score": 15,
+    "temperature": "froid",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000121
+  },
+  {
+   "id": 14,
+   "profil": "trail · 1-2 · trail-court · 150-400",
+   "note": "Premier trail court",
+   "attendu": {
+    "segment": "TRAIL_DECOUVERTE",
+    "temperatures": [
+     "tiede"
+    ]
+   },
+   "obtenu": {
+    "segment": "TRAIL_DECOUVERTE",
+    "score": 40,
+    "temperature": "tiede",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000124
+  },
+  {
+   "id": 15,
+   "profil": "trail · 1-2 · forme · 400-plus",
+   "note": "Balades trail, gros budget",
+   "attendu": {
+    "segment": "TRAIL_DECOUVERTE",
+    "temperatures": [
+     "tiede"
+    ]
+   },
+   "obtenu": {
+    "segment": "TRAIL_DECOUVERTE",
+    "score": 45,
+    "temperature": "tiede",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000123
+  },
+  {
+   "id": 16,
+   "profil": "trail · moins-1 · trail-court · moins-150",
+   "note": "Occasionnel, petit budget",
+   "attendu": {
+    "segment": "TRAIL_DECOUVERTE",
+    "temperatures": [
+     "froid"
+    ]
+   },
+   "obtenu": {
+    "segment": "TRAIL_DECOUVERTE",
+    "score": 15,
+    "temperature": "froid",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000121
+  },
+  {
+   "id": 17,
+   "profil": "trail · 1-2 · trail-court · moins-150",
+   "note": "Trail court, petit budget",
+   "attendu": {
+    "segment": "TRAIL_DECOUVERTE",
+    "temperatures": [
+     "froid",
+     "tiede"
+    ]
+   },
+   "obtenu": {
+    "segment": "TRAIL_DECOUVERTE",
+    "score": 25,
+    "temperature": "froid",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000121
+  },
+  {
+   "id": 18,
+   "profil": "trail · 3-4 · trail-court · 400-plus",
+   "note": "Traileur régulier équipé",
+   "attendu": {
+    "segment": "TRAIL_ENDURANCE",
+    "temperatures": [
+     "chaud"
+    ]
+   },
+   "obtenu": {
+    "segment": "TRAIL_ENDURANCE",
+    "score": 70,
+    "temperature": "chaud",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000121
+  },
+  {
+   "id": 19,
+   "profil": "trail · 3-4 · ultra · 400-plus",
+   "note": "Ultra, profil idéal",
+   "attendu": {
+    "segment": "TRAIL_ENDURANCE",
+    "temperatures": [
+     "chaud"
+    ]
+   },
+   "obtenu": {
+    "segment": "TRAIL_ENDURANCE",
+    "score": 85,
+    "temperature": "chaud",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000124
+  },
+  {
+   "id": 20,
+   "profil": "trail · 5-plus · ultra · 400-plus",
+   "note": "Ultra intensif",
+   "attendu": {
+    "segment": "TRAIL_ENDURANCE",
+    "temperatures": [
+     "chaud"
+    ]
+   },
+   "obtenu": {
+    "segment": "TRAIL_ENDURANCE",
+    "score": 90,
+    "temperature": "chaud",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000122
+  },
+  {
+   "id": 21,
+   "profil": "trail · 1-2 · ultra · 150-400",
+   "note": "Ultra mais peu de sorties",
+   "attendu": {
+    "segment": "TRAIL_ENDURANCE",
+    "temperatures": [
+     "tiede"
+    ]
+   },
+   "obtenu": {
+    "segment": "TRAIL_ENDURANCE",
+    "score": 55,
+    "temperature": "tiede",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000123
+  },
+  {
+   "id": 22,
+   "profil": "trail · 3-4 · forme · 150-400",
+   "note": "Régulier sans objectif",
+   "attendu": {
+    "segment": "TRAIL_ENDURANCE",
+    "temperatures": [
+     "tiede"
+    ]
+   },
+   "obtenu": {
+    "segment": "TRAIL_ENDURANCE",
+    "score": 45,
+    "temperature": "tiede",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000127
+  },
+  {
+   "id": 23,
+   "profil": "trail · 5-plus · trail-court · 150-400",
+   "note": "Très régulier, budget moyen",
+   "attendu": {
+    "segment": "TRAIL_ENDURANCE",
+    "temperatures": [
+     "tiede",
+     "chaud"
+    ]
+   },
+   "obtenu": {
+    "segment": "TRAIL_ENDURANCE",
+    "score": 62,
+    "temperature": "tiede",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000118
+  },
+  {
+   "id": 24,
+   "profil": "les-deux · 1-2 · forme · moins-150",
+   "note": "Mixte, forme, petit budget",
+   "attendu": {
+    "segment": "ROUTE_DEBUTANT",
+    "temperatures": [
+     "froid"
+    ]
+   },
+   "obtenu": {
+    "segment": "ROUTE_DEBUTANT",
+    "score": 15,
+    "temperature": "froid",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000125
+  },
+  {
+   "id": 25,
+   "profil": "les-deux · 3-4 · marathon · 400-plus",
+   "note": "Mixte, marathon, équipé",
+   "attendu": {
+    "segment": "ROUTE_PERF",
+    "temperatures": [
+     "chaud"
+    ]
+   },
+   "obtenu": {
+    "segment": "ROUTE_PERF",
+    "score": 78,
+    "temperature": "chaud",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000121
+  },
+  {
+   "id": 26,
+   "profil": "les-deux · 1-2 · 10km · 150-400",
+   "note": "Mixte, 10 km",
+   "attendu": {
+    "segment": "ROUTE_DEBUTANT",
+    "temperatures": [
+     "froid",
+     "tiede"
+    ]
+   },
+   "obtenu": {
+    "segment": "ROUTE_DEBUTANT",
+    "score": 30,
+    "temperature": "froid",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000122
+  },
+  {
+   "id": 27,
+   "profil": "les-deux · 1-2 · trail-court · 150-400",
+   "note": "Mixte, découvre le trail",
+   "attendu": {
+    "segment": "TRAIL_DECOUVERTE",
+    "temperatures": [
+     "tiede"
+    ]
+   },
+   "obtenu": {
+    "segment": "TRAIL_DECOUVERTE",
+    "score": 35,
+    "temperature": "froid",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": false,
+   "coutUsd": 0.00012
+  },
+  {
+   "id": 28,
+   "profil": "les-deux · 3-4 · ultra · 400-plus",
+   "note": "Mixte, ultra",
+   "attendu": {
+    "segment": "TRAIL_ENDURANCE",
+    "temperatures": [
+     "chaud"
+    ]
+   },
+   "obtenu": {
+    "segment": "TRAIL_ENDURANCE",
+    "score": 85,
+    "temperature": "chaud",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000122
+  },
+  {
+   "id": 29,
+   "profil": "les-deux · 5-plus · trail-court · 400-plus",
+   "note": "Mixte intensif, trail",
+   "attendu": {
+    "segment": "TRAIL_ENDURANCE",
+    "temperatures": [
+     "chaud"
+    ]
+   },
+   "obtenu": {
+    "segment": "TRAIL_ENDURANCE",
+    "score": 85,
+    "temperature": "chaud",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000121
+  },
+  {
+   "id": 30,
+   "profil": "les-deux · moins-1 · semi · moins-150",
+   "note": "Semi visé, très peu de sorties",
+   "attendu": {
+    "segment": "ROUTE_PERF",
+    "temperatures": [
+     "froid"
+    ]
+   },
+   "obtenu": {
+    "segment": "ROUTE_PERF",
+    "score": 15,
+    "temperature": "froid",
+    "source": "ia"
+   },
+   "segmentCorrect": true,
+   "temperatureCorrecte": true,
+   "coutUsd": 0.000125
+  }
+ ]
+}

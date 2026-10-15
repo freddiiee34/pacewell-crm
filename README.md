@@ -61,7 +61,7 @@ Clic ─▶ page de confirmation (le lien seul ne déclenche rien)
 ### Étape 4 : mesure
 
 - **Tableau de bord** (`landing/tableau-de-bord.html`) : inscrits, leads chauds, score moyen, coût de l'IA, répartition par segment et par score, emails envoyés, délivrés, ouverts et cliqués (statistiques Brevo), relances, et journal des 15 dernières décisions de l'IA avec leur raison. Les chiffres sont calculés par n8n : la page ne reçoit ni email ni prénom.
-- **Évaluation** (`evaluation/profils.json`) : 30 profils annotés à la main (segment attendu, température acceptée). Le workflow « Évaluation de l'IA » les passe dans le prompt et les garde-fous de production ; le résultat est publié dans `landing/evaluation.json` et affiché sur le tableau de bord. Variante en local : `node scripts/evaluer.mjs` avec `ANTHROPIC_API_KEY`.
+- **Évaluation** (`evaluation/profils.json`), dernier résultat (15 octobre 2026, Claude Haiku 5.5) : **bon segment 30/30, bonne température 29/30, aucun repli, 0,0036 $ pour les 30 profils**. Détail : 30 profils annotés à la main (segment attendu, température acceptée). Le workflow « Évaluation de l'IA » les passe dans le prompt et les garde-fous de production ; le résultat est publié dans `landing/evaluation.json` et affiché sur le tableau de bord. Variante en local : `node scripts/evaluer.mjs` avec `ANTHROPIC_API_KEY`.
 
 ### Garde-fous
 
@@ -70,12 +70,14 @@ Clic ─▶ page de confirmation (le lien seul ne déclenche rien)
 - **Humain dans la boucle** : aucune relance ne part sans validation ; le lien ouvre une page de confirmation (les antivirus de messagerie qui visitent les liens ne déclenchent rien) et le jeton ne sert qu'une fois.
 - **Minimisation des données (RGPD)** : l'IA ne reçoit jamais ni l'email ni le prénom ; le prénom est ajouté par le gabarit. Le tableau de bord n'affiche que des agrégats.
 - **Consentement obligatoire**, champ piège anti-robots, CORS limité au domaine de la landing.
+- **Limite de requêtes de l'API** : l'évaluation espace ses appels (un toutes les 2,5 s). En production, une erreur 429 range le lead en `A_QUALIFIER`, sans le perdre.
+- **Réflexion du modèle désactivée** (`thinking: disabled`) : pour ces tâches courtes, elle consommait tout le budget de tokens avant la réponse.
 - **Coût suivi par lead** : calculé à partir des tokens réellement consommés et enregistré dans Brevo (`COUT_IA_USD`). Avec Claude Haiku 5.5, une qualification coûte environ 0,0001 $.
 
 ### Tests
 
 ```bash
-node --test tests/*.test.mjs          # 48 tests : code des nœuds n8n
+node --test tests/*.test.mjs          # 49 tests : code des nœuds n8n
 python3 -m pytest -q tests/           # 3 tests : script Brevo
 python3 tests/n8n/e2e.py <chemin vers n8n>   # 10 scénarios dans un vrai n8n
 ```

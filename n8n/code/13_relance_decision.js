@@ -42,7 +42,7 @@ if (!a.RELANCE_JETON || a.RELANCE_JETON !== p.jeton) {
 
 const prenom = a.PRENOM || '';
 const objet = a.RELANCE_OBJET || '';
-const message = a.RELANCE_MESSAGE || '';
+const message = sansSalutation(a.RELANCE_MESSAGE || '');
 const paragraphes = message.split(/\n\s*\n/).map((t) => t.trim()).filter(Boolean);
 
 if (!confirmation) {

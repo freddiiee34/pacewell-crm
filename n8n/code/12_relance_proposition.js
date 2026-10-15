@@ -21,7 +21,7 @@ const source = motif ? 'modele' : 'ia';
 if (motif) contenu = { ...(MODELES[c.segment] || MODELES.ROUTE_DEBUTANT), angle: `Modèle du segment (texte de l'IA écarté : ${motif}).` };
 
 const objet = contenu.objet.trim();
-const message = contenu.message.trim();
+const message = sansSalutation(contenu.message);
 const cle = jeton();
 const lien = (action) => `${config.urlN8n}/webhook/pacewell-relance?email=${encodeURIComponent(c.email)}&jeton=${cle}&action=${action}`;
 

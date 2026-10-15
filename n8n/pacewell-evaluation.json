@@ -51,7 +51,7 @@
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// Prépare la requête envoyée à Claude.\n// Minimisation des données (RGPD) : l'IA ne reçoit NI l'email NI le prénom,\n// seulement les réponses au questionnaire.\nconst { lead } = $json;\nconst { config } = $('Configuration').item.json;\n\nconst consignes = `Tu es l'outil de qualification CRM de ${config.marque}, une boutique en ligne de running et de trail.\nÀ partir des réponses d'un nouvel inscrit, tu le classes pour personnaliser ses emails.\n\nSegments possibles (choisis-en exactement un) :\n- ROUTE_DEBUTANT : court sur route, débute ou reprend, objectif forme ou 10 km, 2 sorties par semaine maximum.\n- ROUTE_PERF : court sur route avec un objectif chronométré (semi, marathon) ou 3 sorties et plus par semaine.\n- TRAIL_DECOUVERTE : découvre le trail, objectif forme ou trail court, pratique occasionnelle à régulière.\n- TRAIL_ENDURANCE : trail engagé, objectif ultra, ou trail avec 3 sorties et plus par semaine.\nRègles : « route » donne toujours un segment ROUTE_*, « trail » toujours un segment TRAIL_*.\nPour « les-deux », l'objectif tranche (trail-court ou ultra : TRAIL_* ; sinon ROUTE_*).\n\nNiveau : debutant, intermediaire ou confirme.\nScore de 1 à 100 : potentiel commercial sur un an (fréquence de pratique, budget annuel, ambition de l'objectif).\nRepères : moins d'une sortie et budget faible, autour de 15 ; pratique régulière et budget moyen, autour de 50 ;\npratique intensive, budget élevé et objectif ambitieux, au-delà de 80.\n\nRéponds UNIQUEMENT avec un objet JSON, sans texte autour :\n{\"segment\": \"...\", \"niveau\": \"...\", \"score\": 0, \"raison\": \"une phrase de 25 mots maximum\"}`;\n\nconst reponses = {\n  pratique: lead.pratique,\n  sorties_par_semaine: lead.frequence,\n  objectif: lead.objectif,\n  budget_annuel_equipement_euros: lead.budget,\n};\n\nreturn {\n  requete: {\n    model: config.modele,\n    max_tokens: 300,\n    system: consignes,\n    messages: [{ role: 'user', content: 'Réponses du formulaire :\\n' + JSON.stringify(reponses, null, 1) }],\n  },\n};\n"
+        "jsCode": "// Prépare la requête envoyée à Claude.\n// Minimisation des données (RGPD) : l'IA ne reçoit NI l'email NI le prénom,\n// seulement les réponses au questionnaire.\nconst { lead } = $json;\nconst { config } = $('Configuration').item.json;\n\nconst consignes = `Tu es l'outil de qualification CRM de ${config.marque}, une boutique en ligne de running et de trail.\nÀ partir des réponses d'un nouvel inscrit, tu le classes pour personnaliser ses emails.\n\nSegments possibles (choisis-en exactement un) :\n- ROUTE_DEBUTANT : court sur route, débute ou reprend, objectif forme ou 10 km, 2 sorties par semaine maximum.\n- ROUTE_PERF : court sur route avec un objectif chronométré (semi, marathon) ou 3 sorties et plus par semaine.\n- TRAIL_DECOUVERTE : découvre le trail, objectif forme ou trail court, pratique occasionnelle à régulière.\n- TRAIL_ENDURANCE : trail engagé, objectif ultra, ou trail avec 3 sorties et plus par semaine.\nRègles : « route » donne toujours un segment ROUTE_*, « trail » toujours un segment TRAIL_*.\nPour « les-deux », l'objectif tranche (trail-court ou ultra : TRAIL_* ; sinon ROUTE_*).\n\nNiveau : debutant, intermediaire ou confirme.\nScore de 1 à 100 : potentiel commercial sur un an (fréquence de pratique, budget annuel, ambition de l'objectif).\nRepères : moins d'une sortie et budget faible, autour de 15 ; pratique régulière et budget moyen, autour de 50 ;\npratique intensive, budget élevé et objectif ambitieux, au-delà de 80.\n\nRéponds UNIQUEMENT avec un objet JSON, sans texte autour :\n{\"segment\": \"...\", \"niveau\": \"...\", \"score\": 0, \"raison\": \"une phrase de 25 mots maximum\"}`;\n\nconst reponses = {\n  pratique: lead.pratique,\n  sorties_par_semaine: lead.frequence,\n  objectif: lead.objectif,\n  budget_annuel_equipement_euros: lead.budget,\n};\n\nreturn {\n  requete: {\n    model: config.modele,\n    max_tokens: 600,\n    // Tâche courte : pas de réflexion préalable, sinon elle peut consommer tout le budget de tokens.\n    thinking: { type: 'disabled' },\n    system: consignes,\n    messages: [{ role: 'user', content: 'Réponses du formulaire :\\n' + JSON.stringify(reponses, null, 1) }],\n  },\n};\n"
       }
     },
     {
@@ -75,7 +75,13 @@
               "neverError": true
             }
           },
-          "timeout": 30000
+          "timeout": 30000,
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 2500
+            }
+          }
         },
         "sendHeaders": true,
         "headerParameters": {

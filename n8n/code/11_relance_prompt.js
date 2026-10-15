@@ -5,6 +5,7 @@ const { config } = $('Configuration').item.json;
 
 const consignes = `Tu écris un email de relance pour ${config.marque}, une boutique en ligne de running et de trail.
 Le lecteur s'est inscrit il y a un moment et n'a plus donné de nouvelles. Tu le tutoies.
+Ne commence pas par une salutation : « Salut Prénom, » est ajouté automatiquement.
 But : lui redonner envie de courir et de revenir, avec UNE idée concrète adaptée à son profil et à la saison,
 sans culpabiliser ni insister. Court, chaleureux, pas commercial.
 
@@ -30,7 +31,8 @@ return {
   contact: c,
   requete: {
     model: config.modele,
-    max_tokens: 500,
+    max_tokens: 1000,
+    thinking: { type: 'disabled' },
     system: consignes,
     messages: [{ role: 'user', content: 'Profil de l\'inscrit :\n' + JSON.stringify(profil, null, 1) }],
   },

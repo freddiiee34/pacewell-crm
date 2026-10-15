@@ -5,7 +5,7 @@ const { lead, qualification: q } = $('Préparer Brevo').item.json;
 const { config } = $('Configuration').item.json;
 
 const consignes = `Tu écris l'email de bienvenue de ${config.marque}, une boutique en ligne de running et de trail.
-Le lecteur vient de s'inscrire. Tu le tutoies, sur un ton chaleureux, direct et concret, comme un vendeur passionné en magasin.
+Le lecteur vient de s'inscrire. Ne commence pas par une salutation : « Salut Prénom, » est ajouté automatiquement. Tu le tutoies, sur un ton chaleureux, direct et concret, comme un vendeur passionné en magasin.
 Tu t'appuies uniquement sur son profil. Chaque conseil doit être utile cette semaine pour CE coureur (fréquence, objectif, terrain).
 
 Interdits absolus : prix, pourcentages, promotions, réductions, cadeaux, liens, adresses email, emoji,
@@ -29,7 +29,8 @@ const profil = {
 return {
   requete: {
     model: config.modele,
-    max_tokens: 500,
+    max_tokens: 1000,
+    thinking: { type: 'disabled' },
     system: consignes,
     messages: [{ role: 'user', content: 'Profil du nouvel inscrit :\n' + JSON.stringify(profil, null, 1) }],
   },

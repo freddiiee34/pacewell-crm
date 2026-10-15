@@ -153,6 +153,15 @@ test('relance : proposition mise en attente avec un jeton, email de validation v
   assert.equal(r.proposition.source, 'ia');
 });
 
+test('salutation en tête retirée : le gabarit ajoute déjà « Salut Prénom, »', () => {
+  const r = executer('12_relance_proposition.js', claude({ ...RELANCE_OK, message: 'Salut,\n\nça fait un moment !' }), { ...CONF, 'Préparer la relance': { contact: CONTACT } });
+  assert.equal(r.majContact.attributes.RELANCE_MESSAGE, 'Ça fait un moment !');
+  const b = executer('09_bienvenue_email.js', claude({ ...BIENVENUE_OK, intro: 'Bonjour Julie ! Content de te voir.' }), BREVO);
+  assert.ok(b.email.textContent.startsWith('Salut Julie,\n\nContent de te voir.'));
+  const d = decision({ get: { email: 'julie@exemple.fr', jeton: 'abc123', action: 'envoyer' } }, { RELANCE_MESSAGE: 'Salut,\n\nPremier.' });
+  assert.ok(!d.page.includes('Salut,'));
+});
+
 test('relance : deux propositions n\'ont jamais le même jeton', () => {
   const j = () => executer('12_relance_proposition.js', claude(RELANCE_OK), { ...CONF, 'Préparer la relance': { contact: CONTACT } }).majContact.attributes.RELANCE_JETON;
   assert.notEqual(j(), j());

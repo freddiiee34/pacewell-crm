@@ -83,10 +83,14 @@ class Workflow:
         extra = {"onError": "continueRegularOutput"} if continuer else {}
         return self.noeud(nom, "n8n-nodes-base.httpRequest", 4.5, x, y, p, credentials=credentials, **extra)
 
-    def claude(self, nom, x, y):
-        return self.http(nom, "POST", "={{ " + CONF + ".urlClaude }}/messages", x, y, CRED_CLAUDE,
-                         corps="={{ JSON.stringify($json.requete) }}", entetes={"anthropic-version": "2023-06-01"},
-                         reponse_complete=True, timeout=30000)
+    def claude(self, nom, x, y, espacer_ms=None):
+        nom = self.http(nom, "POST", "={{ " + CONF + ".urlClaude }}/messages", x, y, CRED_CLAUDE,
+                        corps="={{ JSON.stringify($json.requete) }}", entetes={"anthropic-version": "2023-06-01"},
+                        reponse_complete=True, timeout=30000)
+        if espacer_ms:
+            # Un appel à la fois, espacés : reste sous la limite de requêtes par minute de l'API.
+            self.noeuds[-1]["parameters"]["options"]["batching"] = {"batch": {"batchSize": 1, "batchInterval": espacer_ms}}
+        return nom
 
     def webhook(self, nom, methode, chemin, x, y, origine=None):
         options = {"allowedOrigins": origine} if origine else {}
@@ -250,7 +254,7 @@ w.code("Configuration", "01_configuration.js", 220, 300)
 w.code("Profils annotés", "15_evaluation_profils.js", 440, 300, tous=True,
        remplacer={"__PROFILS__": json.dumps(profils, ensure_ascii=False)})
 w.code("Préparer le prompt", "04_preparer_prompt.js", 660, 300)
-w.claude("Claude : qualifier", 880, 300)
+w.claude("Claude : qualifier", 880, 300, espacer_ms=2500)
 w.code("Valider la réponse IA", "05_valider_ia.js", 1100, 300,
        remplacer={"$('Dédoublonner')": "$('Profils annotés')"})
 w.code("Bilan", "16_evaluation_bilan.js", 1320, 300, tous=True)

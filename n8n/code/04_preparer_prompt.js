@@ -33,7 +33,9 @@ const reponses = {
 return {
   requete: {
     model: config.modele,
-    max_tokens: 300,
+    max_tokens: 600,
+    // Tâche courte : pas de réflexion préalable, sinon elle peut consommer tout le budget de tokens.
+    thinking: { type: 'disabled' },
     system: consignes,
     messages: [{ role: 'user', content: 'Réponses du formulaire :\n' + JSON.stringify(reponses, null, 1) }],
   },

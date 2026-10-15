@@ -2,6 +2,8 @@
 // Un nœud Code de n8n ne peut pas importer de fichier : ce bloc est recopié dans chacun.
 const e = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const aujourdhui = () => new Date().toISOString().slice(0, 10);
+// Retire une salutation en tête de texte (« Salut, ») : le gabarit ajoute déjà « Salut Prénom, ».
+const sansSalutation = (t) => String(t ?? '').trim().replace(/^(salut|bonjour|hello|coucou|hey)\b[^\n.!?]{0,30}[,!.]?\s*/i, '').replace(/^\p{Ll}/u, (c) => c.toUpperCase());
 
 const SEGMENTS_LIBELLES = {
   ROUTE_DEBUTANT: 'Route · Débuter', ROUTE_PERF: 'Route · Performance',

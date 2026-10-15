@@ -60,6 +60,7 @@ if (!motif) {
 }
 const source = motif ? 'modele' : 'ia';
 if (motif) contenu = MODELES[q.segment] || MODELES.A_QUALIFIER;
+contenu = { ...contenu, intro: sansSalutation(contenu.intro) };
 
 const prenom = lead.prenom || '';
 const C = COULEURS;

@@ -84,6 +84,7 @@ test("prompt : l'IA ne reçoit ni l'email ni le prénom", () => {
   assert.ok(!tout.includes('julie@exemple.fr'));
   assert.ok(!tout.includes('Julie'));
   assert.equal(requete.model, 'claude-haiku-5-5');
+  assert.deepEqual(requete.thinking, { type: 'disabled' });
 });
 
 // --- Validation de la réponse IA ----------------------------------------------
