@@ -9,8 +9,15 @@ const config = {
   prixEntreeParMillion: 0.10,
   prixSortieParMillion: 0.50,
   seuilLeadChaud: 70,
-  emailAlerte: 'simondelruepro@gmail.com',
+  emailAlerte: 'simon59117@gmail.com',
+  // Alertes et validations (vers toi) / emails aux inscrits (au nom de la marque).
   expediteur: { email: 'audit@simondelrue.fr', name: 'Pacewell CRM' },
+  expediteurMarque: { email: 'audit@simondelrue.fr', name: 'Pacewell' },
+  urlSite: 'https://pacewell.simondelrue.fr',
+  urlN8n: 'https://n8n.simondelrue.fr',
+  // Réactivation : inactif depuis N jours, au plus M propositions par passage.
+  joursInactivite: 60,
+  maxRelances: 5,
   delaiDoublonJours: 7,
   // Adresses des API (modifiables pour les tests).
   urlBrevo: 'https://api.brevo.com/v3',
@@ -24,5 +31,5 @@ const config = {
   },
 };
 
-// Le webhook range le formulaire dans `body`.
-return { formulaire: $json.body ?? {}, config };
+// Le webhook range le formulaire dans `body` et les paramètres d'URL dans `query`.
+return { formulaire: $json.body ?? {}, query: $json.query ?? {}, config };

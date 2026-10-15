@@ -34,6 +34,14 @@ ATTRIBUTS = {
     "SOURCE_QUALIF": "text",
     "COUT_IA_USD": "float",
     "QUALIFIE_LE": "date",
+    # Étape 3 : réactivation
+    "DERNIERE_ACTIVITE": "date",
+    "RELANCE_STATUT": "text",
+    "RELANCE_LE": "date",
+    "RELANCE_JETON": "text",
+    "RELANCE_OBJET": "text",
+    "RELANCE_MESSAGE": "text",
+    "RELANCE_SOURCE": "text",
 }
 
 DOSSIER = "Pacewell"

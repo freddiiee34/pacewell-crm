@@ -1,0 +1,367 @@
+{
+  "name": "Pacewell · Validation des relances",
+  "nodes": [
+    {
+      "id": "fa818f36-c1e3-55fb-bbd1-a63ab4023c30",
+      "name": "Lien de validation",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        200
+      ],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "pacewell-relance",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "44ce9e62-8801-5784-ab27-0a69214b8321"
+    },
+    {
+      "id": "e3b9d0d4-d899-5c41-857c-b3725469bc7d",
+      "name": "Confirmation",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        420
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pacewell-relance-decision",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "f557f399-5eb6-53ca-acf1-4f0af82c9b44"
+    },
+    {
+      "id": "e665673a-cada-5b34-95b7-78786188d3ed",
+      "name": "Configuration",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Configuration du workflow « Qualification ».\n// C'est le seul nœud à modifier après l'import : renseigne les ID des listes\n// Brevo affichés par scripts/setup_brevo.py.\nconst config = {\n  marque: 'Pacewell',\n  modele: 'claude-haiku-5-5',\n  // Tarifs Claude Haiku 5.5 (USD par million de tokens, prompts < 100k tokens).\n  // Source : platform.claude.com/docs/en/about-claude/pricing — à revérifier de temps en temps.\n  prixEntreeParMillion: 0.10,\n  prixSortieParMillion: 0.50,\n  seuilLeadChaud: 70,\n  emailAlerte: 'simon59117@gmail.com',\n  // Alertes et validations (vers toi) / emails aux inscrits (au nom de la marque).\n  expediteur: { email: 'audit@simondelrue.fr', name: 'Pacewell CRM' },\n  expediteurMarque: { email: 'audit@simondelrue.fr', name: 'Pacewell' },\n  urlSite: 'https://pacewell.simondelrue.fr',\n  urlN8n: 'https://n8n.simondelrue.fr',\n  // Réactivation : inactif depuis N jours, au plus M propositions par passage.\n  joursInactivite: 60,\n  maxRelances: 5,\n  delaiDoublonJours: 7,\n  // Adresses des API (modifiables pour les tests).\n  urlBrevo: 'https://api.brevo.com/v3',\n  urlClaude: 'https://api.anthropic.com/v1',\n  listes: {\n    ROUTE_DEBUTANT: 0,\n    ROUTE_PERF: 0,\n    TRAIL_DECOUVERTE: 0,\n    TRAIL_ENDURANCE: 0,\n    A_QUALIFIER: 0,\n  },\n};\n\n// Le webhook range le formulaire dans `body` et les paramètres d'URL dans `query`.\nreturn { formulaire: $json.body ?? {}, query: $json.query ?? {}, config };\n"
+      }
+    },
+    {
+      "id": "8f2304ef-2bfe-5e7d-9cb8-643ac5035d44",
+      "name": "Brevo : lire le contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Configuration').item.json.config.urlBrevo }}/contacts/{{ encodeURIComponent(String($json.formulaire.email || $json.query.email || '-').trim().toLowerCase()) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Brevo API"
+        }
+      }
+    },
+    {
+      "id": "c597c7d8-253f-5256-a3bd-98afa34f6592",
+      "name": "Traiter la décision",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// ---- Outils communs (ajoutés en tête des nœuds 08 et suivants par construire_workflow.py) ----\n// Un nœud Code de n8n ne peut pas importer de fichier : ce bloc est recopié dans chacun.\nconst e = (s) => String(s ?? '').replace(/[&<>\"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' }[c]));\nconst aujourdhui = () => new Date().toISOString().slice(0, 10);\n\nconst SEGMENTS_LIBELLES = {\n  ROUTE_DEBUTANT: 'Route · Débuter', ROUTE_PERF: 'Route · Performance',\n  TRAIL_DECOUVERTE: 'Trail · Découverte', TRAIL_ENDURANCE: 'Trail · Endurance et ultra', A_QUALIFIER: 'À qualifier',\n};\nconst NIVEAUX_LIBELLES = { debutant: 'Débutant', intermediaire: 'Intermédiaire', confirme: 'Confirmé' };\nconst REPONSES_LIBELLES = {\n  pratique: { route: 'Route', trail: 'Trail', 'les-deux': 'Route et trail' },\n  frequence: { 'moins-1': 'Moins d\\'une sortie par semaine', '1-2': '1 à 2 sorties par semaine', '3-4': '3 à 4 sorties par semaine', '5-plus': '5 sorties ou plus par semaine' },\n  objectif: { forme: 'Garder la forme', '10km': '10 km', semi: 'Semi-marathon', marathon: 'Marathon', 'trail-court': 'Trail court', ultra: 'Ultra-trail' },\n  budget: { 'moins-150': 'Moins de 150 € par an', '150-400': '150 à 400 € par an', '400-plus': 'Plus de 400 € par an' },\n};\nconst lisible = (champ, v) => REPONSES_LIBELLES[champ]?.[v] ?? v ?? '—';\n\n// Ce que l'IA n'a pas le droit d'écrire au nom de la marque : prix, promotions, liens,\n// adresses, emoji, promesses de santé. Un texte qui en contient est remplacé par le modèle.\nconst INTERDITS = [\n  [/https?:|www\\.|\\.(fr|com)\\b/i, 'lien'],\n  [/@/, 'adresse email'],\n  [/€|\\d\\s*%|\\beuros?\\b/i, 'prix ou pourcentage'],\n  [/promo|réduc|remise|solde|offert|gratuit|cadeau/i, 'promotion'],\n  [/guéri|médic|traitement/i, 'promesse de santé'],\n  [/\\p{Extended_Pictographic}/u, 'emoji'],\n];\nfunction problemeTexte(texte, max) {\n  if (typeof texte !== 'string' || !texte.trim()) return 'texte vide';\n  if (texte.length > max) return `texte trop long (${texte.length} > ${max})`;\n  for (const [motif, nom] of INTERDITS) if (motif.test(texte)) return nom;\n  return null;\n}\n\n// Lit le JSON d'une réponse Claude (réponse HTTP complète de n8n) et calcule son coût.\nfunction lireClaude(reponse, config) {\n  const corps = reponse.body || {};\n  const usage = corps.usage || {};\n  const cout = ((usage.input_tokens || 0) * config.prixEntreeParMillion\n    + (usage.output_tokens || 0) * config.prixSortieParMillion) / 1e6;\n  const arrondi = Math.round(cout * 1e6) / 1e6;\n  if (reponse.statusCode !== 200) return { erreur: `API ${reponse.statusCode || 'injoignable'}`, cout: arrondi };\n  const texte = (corps.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('');\n  try {\n    return { donnees: JSON.parse(texte.slice(texte.indexOf('{'), texte.lastIndexOf('}') + 1)), cout: arrondi };\n  } catch (err) {\n    return { erreur: 'JSON illisible', cout: arrondi };\n  }\n}\n\n// Jeton aléatoire pour les liens de validation (usage unique, stocké dans Brevo).\nfunction jeton() {\n  const octets = new Uint8Array(18);\n  if (globalThis.crypto?.getRandomValues) globalThis.crypto.getRandomValues(octets);\n  else for (let i = 0; i < octets.length; i++) octets[i] = Math.floor(Math.random() * 256);\n  return Array.from(octets, (o) => o.toString(16).padStart(2, '0')).join('');\n}\n\n// Gabarit HTML des emails de la marque : tableaux et styles en ligne (Gmail, Outlook, mobile).\nconst COULEURS = { encre: '#10213a', craie: '#e8ebee', piste: '#ff5a1f', gris: '#5b6676', filet: '#dde1e6' };\nfunction gabaritEmail({ marque, etiquette, preheader, corps, pied }) {\n  const C = COULEURS;\n  return `<!doctype html>\n<html lang=\"fr\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>${e(marque)}</title></head>\n<body style=\"margin:0;padding:0;background:${C.craie}\">\n<div style=\"display:none;max-height:0;overflow:hidden\">${e(preheader)}</div>\n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:${C.craie}\">\n  <tr><td align=\"center\" style=\"padding:28px 12px\">\n    <table role=\"presentation\" width=\"560\" cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;max-width:560px;background:#ffffff;border-radius:6px;overflow:hidden;font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color:${C.encre}\">\n      <tr><td style=\"background:${C.encre};padding:18px 28px\">\n        <span style=\"font-size:18px;font-weight:800;color:#ffffff;letter-spacing:-0.3px\">${e(marque.toLowerCase())}</span>\n        ${etiquette ? `<span style=\"font-size:13px;color:#aab4c3;padding-left:10px\">${e(etiquette)}</span>` : ''}\n      </td></tr>\n${corps}\n      <tr><td style=\"padding:14px 28px;background:#f4f6f8;font-size:12px;line-height:1.5;color:${C.gris}\">${pied}</td></tr>\n    </table>\n  </td></tr>\n</table>\n</body></html>`;\n}\nconst paragraphe = (texte, style = '') => `<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;${style}\">${e(texte)}</p>`;\nfunction bouton(libelle, lien, couleur = COULEURS.piste) {\n  return `<table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\"><tr>\n          <td style=\"background:${couleur};border-radius:4px\"><a href=\"${e(lien)}\" style=\"display:inline-block;padding:13px 22px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none\">${e(libelle)}</a></td>\n        </tr></table>`;\n}\nconst PIED_DEMO = (marque) => `${e(marque)} est une marque fictive : cet email fait partie d'une démonstration de Simon Delrue, développeur web &amp; IA. Pour supprimer tes données, réponds simplement à cet email.`;\n// ---- Fin des outils communs ----\n\n// Étape 3 : traite un clic sur « Envoyer » ou « Ignorer » dans l'email de validation.\n// - Ouverture du lien (GET) : affiche une page de confirmation, ne fait rien d'autre.\n//   Les antivirus de messagerie qui « visitent » les liens ne peuvent donc rien déclencher.\n// - Confirmation (POST du formulaire) : envoie ou écarte la relance, une seule fois.\n// Entrée : la fiche Brevo du contact (réponse HTTP complète).\nconst { config, formulaire, query } = $('Configuration').item.json;\nconst confirmation = Boolean(formulaire && formulaire.decision);\nconst p = confirmation ? formulaire : (query || {});\nconst email = String(p.email || '').trim().toLowerCase();\nconst action = p.action === 'envoyer' || p.action === 'ignorer' ? p.action : null;\nconst a = ($json.statusCode === 200 && $json.body && $json.body.attributes) || {};\nconst C = COULEURS;\n\nfunction page(titre, contenu) {\n  return `<!doctype html><html lang=\"fr\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<meta name=\"robots\" content=\"noindex\"><title>${e(titre)} · ${e(config.marque)}</title>\n<style>\n  body{margin:0;background:${C.craie};color:${C.encre};font:16px/1.55 -apple-system,'Segoe UI',Helvetica,Arial,sans-serif}\n  main{max-width:560px;margin:32px auto;padding:0 16px}\n  .carte{background:#fff;border-radius:6px;overflow:hidden}\n  .tete{background:${C.encre};color:#fff;padding:16px 24px;font-weight:800}\n  .corps{padding:24px}\n  h1{font-size:24px;line-height:1.25;margin:0 0 10px}\n  .note{color:${C.gris};font-size:14px}\n  .apercu{border:1px solid ${C.filet};border-radius:6px;padding:16px;margin:18px 0}\n  button{font:inherit;font-weight:700;border:0;border-radius:4px;padding:13px 22px;color:#fff;background:${C.piste};cursor:pointer}\n  button.neutre{background:${C.gris}}\n  button:focus-visible{outline:3px solid ${C.encre};outline-offset:2px}\n</style></head><body><main><div class=\"carte\"><div class=\"tete\">${e(config.marque.toLowerCase())} · Validation CRM</div>\n<div class=\"corps\">${contenu}</div></div></main></body></html>`;\n}\nconst resultat = (statut, titre, texte, extra = {}) => ({ action: statut, page: page(titre, `<h1>${e(titre)}</h1><p>${e(texte)}</p>`), ...extra });\n\nif (!email || !action || !p.jeton) {\n  return resultat('erreur', 'Lien incomplet', 'Ce lien ne contient pas toutes les informations. Ouvre-le depuis l\\'email de validation.');\n}\nif (!a.RELANCE_JETON || a.RELANCE_JETON !== p.jeton) {\n  const deja = { envoyee: 'a déjà été envoyée', ignoree: 'a déjà été écartée' }[a.RELANCE_STATUT];\n  return resultat('erreur', deja ? 'Déjà traité' : 'Lien expiré',\n    deja ? `Cette relance ${deja}. Rien n'a été modifié.` : 'Ce lien n\\'est plus valable : la relance a été remplacée ou supprimée.');\n}\n\nconst prenom = a.PRENOM || '';\nconst objet = a.RELANCE_OBJET || '';\nconst message = a.RELANCE_MESSAGE || '';\nconst paragraphes = message.split(/\\n\\s*\\n/).map((t) => t.trim()).filter(Boolean);\n\nif (!confirmation) {\n  const envoyer = action === 'envoyer';\n  return {\n    action: 'afficher',\n    page: page(envoyer ? 'Confirmer l\\'envoi' : 'Écarter la relance', `\n      <h1>${envoyer ? `Envoyer cette relance à ${e(prenom || email)} ?` : `Écarter la relance pour ${e(prenom || email)} ?`}</h1>\n      <p class=\"note\">${e(email)} · ${e(SEGMENTS_LIBELLES[a.SEGMENT] ?? a.SEGMENT ?? '')}</p>\n      <div class=\"apercu\"><strong>${e(objet)}</strong>${paragraphes.map((t) => `<p>${e(t)}</p>`).join('')}</div>\n      <form method=\"post\" action=\"${e(config.urlN8n)}/webhook/pacewell-relance-decision\">\n        <input type=\"hidden\" name=\"email\" value=\"${e(email)}\">\n        <input type=\"hidden\" name=\"jeton\" value=\"${e(p.jeton)}\">\n        <input type=\"hidden\" name=\"action\" value=\"${action}\">\n        <input type=\"hidden\" name=\"decision\" value=\"1\">\n        <button type=\"submit\"${envoyer ? '' : ' class=\"neutre\"'}>${envoyer ? 'Oui, envoyer' : 'Oui, écarter'}</button>\n      </form>\n      <p class=\"note\">${envoyer ? 'L\\'email part immédiatement, une seule fois.' : 'L\\'inscrit ne recevra rien. Il pourra être reproposé au prochain cycle.'}</p>`),\n  };\n}\n\nconst finir = { RELANCE_JETON: '', RELANCE_STATUT: action === 'envoyer' ? 'envoyee' : 'ignoree', RELANCE_LE: aujourdhui() };\nif (action === 'ignorer') {\n  return resultat('ignorer', 'Relance écartée', `${prenom || email} ne recevra rien.`, { majContact: { attributes: finir }, email });\n}\n\n// Email de relance envoyé à l'inscrit, au nom de la marque.\nconst corps = `\n      <tr><td style=\"padding:30px 28px 8px\">\n        <h1 style=\"margin:0 0 14px;font-size:24px;line-height:1.25\">${e(prenom ? `Salut ${prenom},` : 'Salut,')}</h1>\n        ${paragraphes.map((t) => paragraphe(t)).join('')}\n      </td></tr>\n      <tr><td style=\"padding:10px 28px 28px\">${bouton('Revenir sur ' + config.marque, config.urlSite)}</td></tr>`;\n\nreturn resultat('envoyer', 'Relance envoyée', `L'email part vers ${prenom || email}.`, {\n  majContact: { attributes: finir },\n  email,\n  emailContact: {\n    sender: config.expediteurMarque,\n    to: [{ email, ...(prenom ? { name: prenom } : {}) }],\n    replyTo: { email: config.emailAlerte },\n    subject: objet,\n    htmlContent: gabaritEmail({ marque: config.marque, preheader: paragraphes[0] || objet, corps, pied: PIED_DEMO(config.marque) }),\n    textContent: [prenom ? `Salut ${prenom},` : 'Salut,', '', ...paragraphes.flatMap((t) => [t, '']), `${config.marque} : ${config.urlSite}`].join('\\n'),\n    tags: ['pacewell-relance'],\n  },\n});\n"
+      }
+    },
+    {
+      "id": "42bb65de-17c5-5f02-be22-bc77cb1a8d88",
+      "name": "Décision à appliquer ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5b399876-e9eb-53e1-aa01-ef92b5863d40",
+              "leftValue": "={{ ['envoyer', 'ignorer'].includes($json.action) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "ce3a7060-7356-5a91-9743-01baaf66986c",
+      "name": "Envoyer ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1100,
+        200
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7a8c6cab-f061-5187-9481-20d339cd0715",
+              "leftValue": "={{ $json.action === 'envoyer' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "19c94bc2-2d18-5097-ad6c-5e3453391825",
+      "name": "Brevo : envoyer la relance",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1320,
+        120
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configuration').item.json.config.urlBrevo }}/smtp/email",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.emailContact) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Brevo API"
+        }
+      }
+    },
+    {
+      "id": "077857fe-dc3f-552b-a3dc-8df5fe77de49",
+      "name": "Brevo : clore la relance",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1540,
+        200
+      ],
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $('Configuration').item.json.config.urlBrevo }}/contacts/{{ encodeURIComponent($('Traiter la décision').item.json.email) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Traiter la décision').item.json.majContact) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Brevo API"
+        }
+      }
+    },
+    {
+      "id": "784e7a44-a0ce-5373-b91d-9418ad07ee40",
+      "name": "Page de réponse",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1760,
+        300
+      ],
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $('Traiter la décision').item.json.page }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Lien de validation": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuration": {
+      "main": [
+        [
+          {
+            "node": "Brevo : lire le contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brevo : lire le contact": {
+      "main": [
+        [
+          {
+            "node": "Traiter la décision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Traiter la décision": {
+      "main": [
+        [
+          {
+            "node": "Décision à appliquer ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Décision à appliquer ?": {
+      "main": [
+        [
+          {
+            "node": "Envoyer ?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Page de réponse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envoyer ?": {
+      "main": [
+        [
+          {
+            "node": "Brevo : envoyer la relance",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Brevo : clore la relance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brevo : envoyer la relance": {
+      "main": [
+        [
+          {
+            "node": "Brevo : clore la relance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brevo : clore la relance": {
+      "main": [
+        [
+          {
+            "node": "Page de réponse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Paris"
+  },
+  "pinData": {},
+  "active": false
+}

@@ -40,11 +40,21 @@ class Faux(BaseHTTPRequestHandler):
     def do_GET(self):
         self._noter(None)
         s = scenario()
+        if self.path.startswith("/v3/contacts?"):
+            return self._repondre(200, {"contacts": s.get("contacts", []), "count": len(s.get("contacts", []))})
         if self.path.startswith("/v3/contacts/"):
             if s.get("contact"):
                 return self._repondre(200, s["contact"])
             return self._repondre(404, {"code": "document_not_found", "message": "Contact does not exist"})
+        if self.path.startswith("/v3/smtp/statistics/aggregatedReport"):
+            return self._repondre(200, {"requests": 4, "delivered": 4, "uniqueOpens": 2, "uniqueClicks": 1,
+                                        "hardBounces": 0, "softBounces": 0, "blocked": 0})
         self._repondre(404, {})
+
+    def do_PUT(self):
+        taille = int(self.headers.get("Content-Length", 0))
+        self._noter(json.loads(self.rfile.read(taille) or b"{}"))
+        self._repondre(204)
 
     def do_POST(self):
         taille = int(self.headers.get("Content-Length", 0))
@@ -52,6 +62,11 @@ class Faux(BaseHTTPRequestHandler):
         self._noter(corps)
         s = scenario()
         if self.path == "/v1/messages":
+            consignes = corps.get("system", "")
+            if "email de bienvenue" in consignes or "email de relance" in consignes:
+                cle = "ia_bienvenue" if "bienvenue" in consignes else "ia_relance"
+                return self._repondre(200, {"content": [{"type": "text", "text": json.dumps(s.get(cle, {}))}],
+                                            "usage": {"input_tokens": 700, "output_tokens": 200}})
             if s.get("ia_statut", 200) != 200:
                 return self._repondre(s["ia_statut"], {"type": "error"})
             texte = s.get("ia_texte") or json.dumps(s.get("ia_reponse", {}))

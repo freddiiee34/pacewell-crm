@@ -1,0 +1,430 @@
+[
+ {
+  "id": 1,
+  "pratique": "route",
+  "frequence": "moins-1",
+  "objectif": "forme",
+  "budget": "moins-150",
+  "attendu": {
+   "segment": "ROUTE_DEBUTANT",
+   "temperatures": [
+    "froid"
+   ]
+  },
+  "note": "Reprise très légère, petit budget"
+ },
+ {
+  "id": 2,
+  "pratique": "route",
+  "frequence": "1-2",
+  "objectif": "10km",
+  "budget": "moins-150",
+  "attendu": {
+   "segment": "ROUTE_DEBUTANT",
+   "temperatures": [
+    "froid"
+   ]
+  },
+  "note": "Débutant 10 km, petit budget"
+ },
+ {
+  "id": 3,
+  "pratique": "route",
+  "frequence": "1-2",
+  "objectif": "forme",
+  "budget": "150-400",
+  "attendu": {
+   "segment": "ROUTE_DEBUTANT",
+   "temperatures": [
+    "froid",
+    "tiede"
+   ]
+  },
+  "note": "Forme, budget moyen"
+ },
+ {
+  "id": 4,
+  "pratique": "route",
+  "frequence": "1-2",
+  "objectif": "10km",
+  "budget": "400-plus",
+  "attendu": {
+   "segment": "ROUTE_DEBUTANT",
+   "temperatures": [
+    "tiede"
+   ]
+  },
+  "note": "Débutant mais gros budget"
+ },
+ {
+  "id": 5,
+  "pratique": "route",
+  "frequence": "moins-1",
+  "objectif": "10km",
+  "budget": "150-400",
+  "attendu": {
+   "segment": "ROUTE_DEBUTANT",
+   "temperatures": [
+    "froid",
+    "tiede"
+   ]
+  },
+  "note": "Occasionnel, budget moyen"
+ },
+ {
+  "id": 6,
+  "pratique": "route",
+  "frequence": "3-4",
+  "objectif": "10km",
+  "budget": "150-400",
+  "attendu": {
+   "segment": "ROUTE_PERF",
+   "temperatures": [
+    "tiede"
+   ]
+  },
+  "note": "10 km régulier"
+ },
+ {
+  "id": 7,
+  "pratique": "route",
+  "frequence": "1-2",
+  "objectif": "semi",
+  "budget": "150-400",
+  "attendu": {
+   "segment": "ROUTE_PERF",
+   "temperatures": [
+    "tiede"
+   ]
+  },
+  "note": "Semi, objectif chronométré"
+ },
+ {
+  "id": 8,
+  "pratique": "route",
+  "frequence": "3-4",
+  "objectif": "marathon",
+  "budget": "400-plus",
+  "attendu": {
+   "segment": "ROUTE_PERF",
+   "temperatures": [
+    "chaud"
+   ]
+  },
+  "note": "Marathonien équipé"
+ },
+ {
+  "id": 9,
+  "pratique": "route",
+  "frequence": "5-plus",
+  "objectif": "marathon",
+  "budget": "400-plus",
+  "attendu": {
+   "segment": "ROUTE_PERF",
+   "temperatures": [
+    "chaud"
+   ]
+  },
+  "note": "Marathonien intensif"
+ },
+ {
+  "id": 10,
+  "pratique": "route",
+  "frequence": "5-plus",
+  "objectif": "semi",
+  "budget": "150-400",
+  "attendu": {
+   "segment": "ROUTE_PERF",
+   "temperatures": [
+    "tiede",
+    "chaud"
+   ]
+  },
+  "note": "Très régulier, budget moyen"
+ },
+ {
+  "id": 11,
+  "pratique": "route",
+  "frequence": "3-4",
+  "objectif": "forme",
+  "budget": "moins-150",
+  "attendu": {
+   "segment": "ROUTE_PERF",
+   "temperatures": [
+    "froid",
+    "tiede"
+   ]
+  },
+  "note": "Régulier sans objectif, petit budget"
+ },
+ {
+  "id": 12,
+  "pratique": "route",
+  "frequence": "1-2",
+  "objectif": "marathon",
+  "budget": "moins-150",
+  "attendu": {
+   "segment": "ROUTE_PERF",
+   "temperatures": [
+    "froid",
+    "tiede"
+   ]
+  },
+  "note": "Marathon ambitieux, petit budget"
+ },
+ {
+  "id": 13,
+  "pratique": "trail",
+  "frequence": "moins-1",
+  "objectif": "forme",
+  "budget": "moins-150",
+  "attendu": {
+   "segment": "TRAIL_DECOUVERTE",
+   "temperatures": [
+    "froid"
+   ]
+  },
+  "note": "Curieux du trail"
+ },
+ {
+  "id": 14,
+  "pratique": "trail",
+  "frequence": "1-2",
+  "objectif": "trail-court",
+  "budget": "150-400",
+  "attendu": {
+   "segment": "TRAIL_DECOUVERTE",
+   "temperatures": [
+    "tiede"
+   ]
+  },
+  "note": "Premier trail court"
+ },
+ {
+  "id": 15,
+  "pratique": "trail",
+  "frequence": "1-2",
+  "objectif": "forme",
+  "budget": "400-plus",
+  "attendu": {
+   "segment": "TRAIL_DECOUVERTE",
+   "temperatures": [
+    "tiede"
+   ]
+  },
+  "note": "Balades trail, gros budget"
+ },
+ {
+  "id": 16,
+  "pratique": "trail",
+  "frequence": "moins-1",
+  "objectif": "trail-court",
+  "budget": "moins-150",
+  "attendu": {
+   "segment": "TRAIL_DECOUVERTE",
+   "temperatures": [
+    "froid"
+   ]
+  },
+  "note": "Occasionnel, petit budget"
+ },
+ {
+  "id": 17,
+  "pratique": "trail",
+  "frequence": "1-2",
+  "objectif": "trail-court",
+  "budget": "moins-150",
+  "attendu": {
+   "segment": "TRAIL_DECOUVERTE",
+   "temperatures": [
+    "froid",
+    "tiede"
+   ]
+  },
+  "note": "Trail court, petit budget"
+ },
+ {
+  "id": 18,
+  "pratique": "trail",
+  "frequence": "3-4",
+  "objectif": "trail-court",
+  "budget": "400-plus",
+  "attendu": {
+   "segment": "TRAIL_ENDURANCE",
+   "temperatures": [
+    "chaud"
+   ]
+  },
+  "note": "Traileur régulier équipé"
+ },
+ {
+  "id": 19,
+  "pratique": "trail",
+  "frequence": "3-4",
+  "objectif": "ultra",
+  "budget": "400-plus",
+  "attendu": {
+   "segment": "TRAIL_ENDURANCE",
+   "temperatures": [
+    "chaud"
+   ]
+  },
+  "note": "Ultra, profil idéal"
+ },
+ {
+  "id": 20,
+  "pratique": "trail",
+  "frequence": "5-plus",
+  "objectif": "ultra",
+  "budget": "400-plus",
+  "attendu": {
+   "segment": "TRAIL_ENDURANCE",
+   "temperatures": [
+    "chaud"
+   ]
+  },
+  "note": "Ultra intensif"
+ },
+ {
+  "id": 21,
+  "pratique": "trail",
+  "frequence": "1-2",
+  "objectif": "ultra",
+  "budget": "150-400",
+  "attendu": {
+   "segment": "TRAIL_ENDURANCE",
+   "temperatures": [
+    "tiede"
+   ]
+  },
+  "note": "Ultra mais peu de sorties"
+ },
+ {
+  "id": 22,
+  "pratique": "trail",
+  "frequence": "3-4",
+  "objectif": "forme",
+  "budget": "150-400",
+  "attendu": {
+   "segment": "TRAIL_ENDURANCE",
+   "temperatures": [
+    "tiede"
+   ]
+  },
+  "note": "Régulier sans objectif"
+ },
+ {
+  "id": 23,
+  "pratique": "trail",
+  "frequence": "5-plus",
+  "objectif": "trail-court",
+  "budget": "150-400",
+  "attendu": {
+   "segment": "TRAIL_ENDURANCE",
+   "temperatures": [
+    "tiede",
+    "chaud"
+   ]
+  },
+  "note": "Très régulier, budget moyen"
+ },
+ {
+  "id": 24,
+  "pratique": "les-deux",
+  "frequence": "1-2",
+  "objectif": "forme",
+  "budget": "moins-150",
+  "attendu": {
+   "segment": "ROUTE_DEBUTANT",
+   "temperatures": [
+    "froid"
+   ]
+  },
+  "note": "Mixte, forme, petit budget"
+ },
+ {
+  "id": 25,
+  "pratique": "les-deux",
+  "frequence": "3-4",
+  "objectif": "marathon",
+  "budget": "400-plus",
+  "attendu": {
+   "segment": "ROUTE_PERF",
+   "temperatures": [
+    "chaud"
+   ]
+  },
+  "note": "Mixte, marathon, équipé"
+ },
+ {
+  "id": 26,
+  "pratique": "les-deux",
+  "frequence": "1-2",
+  "objectif": "10km",
+  "budget": "150-400",
+  "attendu": {
+   "segment": "ROUTE_DEBUTANT",
+   "temperatures": [
+    "froid",
+    "tiede"
+   ]
+  },
+  "note": "Mixte, 10 km"
+ },
+ {
+  "id": 27,
+  "pratique": "les-deux",
+  "frequence": "1-2",
+  "objectif": "trail-court",
+  "budget": "150-400",
+  "attendu": {
+   "segment": "TRAIL_DECOUVERTE",
+   "temperatures": [
+    "tiede"
+   ]
+  },
+  "note": "Mixte, découvre le trail"
+ },
+ {
+  "id": 28,
+  "pratique": "les-deux",
+  "frequence": "3-4",
+  "objectif": "ultra",
+  "budget": "400-plus",
+  "attendu": {
+   "segment": "TRAIL_ENDURANCE",
+   "temperatures": [
+    "chaud"
+   ]
+  },
+  "note": "Mixte, ultra"
+ },
+ {
+  "id": 29,
+  "pratique": "les-deux",
+  "frequence": "5-plus",
+  "objectif": "trail-court",
+  "budget": "400-plus",
+  "attendu": {
+   "segment": "TRAIL_ENDURANCE",
+   "temperatures": [
+    "chaud"
+   ]
+  },
+  "note": "Mixte intensif, trail"
+ },
+ {
+  "id": 30,
+  "pratique": "les-deux",
+  "frequence": "moins-1",
+  "objectif": "semi",
+  "budget": "moins-150",
+  "attendu": {
+   "segment": "ROUTE_PERF",
+   "temperatures": [
+    "froid"
+   ]
+  },
+  "note": "Semi visé, très peu de sorties"
+ }
+]

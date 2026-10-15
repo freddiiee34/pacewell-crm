@@ -1,4 +1,5 @@
-# Landing Pacewell : une page statique servie par nginx.
+# Landing Pacewell : pages statiques servies par nginx.
 FROM nginx:1.27-alpine
-COPY index.html /usr/share/nginx/html/index.html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY *.html *.json /usr/share/nginx/html/
 EXPOSE 80

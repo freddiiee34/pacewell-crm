@@ -2,7 +2,7 @@
   "name": "Pacewell · Qualification des inscrits",
   "nodes": [
     {
-      "id": "83d69542-1ef8-529b-b555-37bb619c1458",
+      "id": "ff63f4ec-0949-58fc-a536-22def7233d5b",
       "name": "Formulaire Pacewell",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
@@ -18,10 +18,10 @@
           "allowedOrigins": "https://pacewell.simondelrue.fr"
         }
       },
-      "webhookId": "aea19341-43e2-5b56-9ec8-e54c768285d3"
+      "webhookId": "2d2fa150-6135-58e6-883f-dee16c7378cc"
     },
     {
-      "id": "6116501d-9fcb-5db4-949f-5055a8d3b562",
+      "id": "581c622b-aeb4-5cb4-8791-3ce216471995",
       "name": "Configuration",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -31,11 +31,11 @@
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// Configuration du workflow « Qualification ».\n// C'est le seul nœud à modifier après l'import : renseigne les ID des listes\n// Brevo affichés par scripts/setup_brevo.py.\nconst config = {\n  marque: 'Pacewell',\n  modele: 'claude-haiku-5-5',\n  // Tarifs Claude Haiku 5.5 (USD par million de tokens, prompts < 100k tokens).\n  // Source : platform.claude.com/docs/en/about-claude/pricing — à revérifier de temps en temps.\n  prixEntreeParMillion: 0.10,\n  prixSortieParMillion: 0.50,\n  seuilLeadChaud: 70,\n  emailAlerte: 'simondelruepro@gmail.com',\n  expediteur: { email: 'audit@simondelrue.fr', name: 'Pacewell CRM' },\n  delaiDoublonJours: 7,\n  // Adresses des API (modifiables pour les tests).\n  urlBrevo: 'https://api.brevo.com/v3',\n  urlClaude: 'https://api.anthropic.com/v1',\n  listes: {\n    ROUTE_DEBUTANT: 0,\n    ROUTE_PERF: 0,\n    TRAIL_DECOUVERTE: 0,\n    TRAIL_ENDURANCE: 0,\n    A_QUALIFIER: 0,\n  },\n};\n\n// Le webhook range le formulaire dans `body`.\nreturn { formulaire: $json.body ?? {}, config };\n"
+        "jsCode": "// Configuration du workflow « Qualification ».\n// C'est le seul nœud à modifier après l'import : renseigne les ID des listes\n// Brevo affichés par scripts/setup_brevo.py.\nconst config = {\n  marque: 'Pacewell',\n  modele: 'claude-haiku-5-5',\n  // Tarifs Claude Haiku 5.5 (USD par million de tokens, prompts < 100k tokens).\n  // Source : platform.claude.com/docs/en/about-claude/pricing — à revérifier de temps en temps.\n  prixEntreeParMillion: 0.10,\n  prixSortieParMillion: 0.50,\n  seuilLeadChaud: 70,\n  emailAlerte: 'simon59117@gmail.com',\n  // Alertes et validations (vers toi) / emails aux inscrits (au nom de la marque).\n  expediteur: { email: 'audit@simondelrue.fr', name: 'Pacewell CRM' },\n  expediteurMarque: { email: 'audit@simondelrue.fr', name: 'Pacewell' },\n  urlSite: 'https://pacewell.simondelrue.fr',\n  urlN8n: 'https://n8n.simondelrue.fr',\n  // Réactivation : inactif depuis N jours, au plus M propositions par passage.\n  joursInactivite: 60,\n  maxRelances: 5,\n  delaiDoublonJours: 7,\n  // Adresses des API (modifiables pour les tests).\n  urlBrevo: 'https://api.brevo.com/v3',\n  urlClaude: 'https://api.anthropic.com/v1',\n  listes: {\n    ROUTE_DEBUTANT: 0,\n    ROUTE_PERF: 0,\n    TRAIL_DECOUVERTE: 0,\n    TRAIL_ENDURANCE: 0,\n    A_QUALIFIER: 0,\n  },\n};\n\n// Le webhook range le formulaire dans `body` et les paramètres d'URL dans `query`.\nreturn { formulaire: $json.body ?? {}, query: $json.query ?? {}, config };\n"
       }
     },
     {
-      "id": "15b74f3c-4cc8-5de4-9265-2f65310b6938",
+      "id": "03f2df8f-7e55-531f-95a4-f5b919cc618e",
       "name": "Nettoyer et valider",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -49,7 +49,7 @@
       }
     },
     {
-      "id": "a1f2fa92-1b92-504d-9bd9-e70bb5b10f93",
+      "id": "35b71f0c-7941-55bf-89b2-ff13d66871b9",
       "name": "Entrée valide ?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
@@ -67,7 +67,7 @@
           },
           "conditions": [
             {
-              "id": "8104980f-be4a-5192-a17e-316da539f1ce",
+              "id": "00a71648-5517-5fdb-b636-5eeeee0f0eb8",
               "leftValue": "={{ $json.ok }}",
               "rightValue": "",
               "operator": {
@@ -83,7 +83,7 @@
       }
     },
     {
-      "id": "12d268c9-adfa-5420-b627-e2577607ed5a",
+      "id": "e4f10cf8-9dc6-5f8a-9bd9-22a2925b2f48",
       "name": "Réponse : refus",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
@@ -100,12 +100,29 @@
       }
     },
     {
-      "id": "5b9c9fc1-336f-5521-bd92-dc50743c4ccd",
+      "id": "c6990174-7e27-596e-b753-18a2d22375be",
+      "name": "Réponse : inscrit",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "b7d1ddc5-70d2-59f5-a054-71b8b4916f85",
       "name": "Brevo : contact existant ?",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        880,
+        1100,
         300
       ],
       "parameters": {
@@ -130,12 +147,12 @@
       }
     },
     {
-      "id": "f2b8076f-d940-5e62-8f6e-c6a360189dc1",
+      "id": "edb8f6d9-a033-5c80-ba81-3537b9738708",
       "name": "Dédoublonner",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1100,
+        1320,
         300
       ],
       "parameters": {
@@ -144,12 +161,12 @@
       }
     },
     {
-      "id": "0973627c-0fbe-50ee-9635-a947d0bacffc",
+      "id": "6e4f40a4-1545-5f21-bb01-dcbf0c4f3ece",
       "name": "Déjà qualifié ?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1320,
+        1540,
         300
       ],
       "parameters": {
@@ -162,7 +179,7 @@
           },
           "conditions": [
             {
-              "id": "343f7222-636f-5d1e-b8fe-9c1ed87b3609",
+              "id": "e96f8426-22dd-53a9-b81f-6d36e90eadd8",
               "leftValue": "={{ $json.doublon }}",
               "rightValue": "",
               "operator": {
@@ -178,12 +195,12 @@
       }
     },
     {
-      "id": "e35b518a-5952-57fb-a1fc-8b94622773a0",
+      "id": "458f5c02-b7a4-5758-808c-437faf328026",
       "name": "Préparer le prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1540,
+        1760,
         400
       ],
       "parameters": {
@@ -192,12 +209,12 @@
       }
     },
     {
-      "id": "479d4852-38f3-598d-827f-c308ce64df70",
+      "id": "5cd40ecf-c4f9-51c5-b846-e879897b7330",
       "name": "Claude : qualifier",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        1760,
+        1980,
         400
       ],
       "parameters": {
@@ -235,22 +252,8 @@
       }
     },
     {
-      "id": "08dcc79f-9bc4-5df0-877e-17e1bb6fa2f5",
+      "id": "2cdfb596-6475-5ec9-869f-7cc8051ba28c",
       "name": "Valider la réponse IA",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1980,
-        400
-      ],
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "// Valide la réponse de Claude. Garde-fou principal du workflow :\n// toute réponse absente, illisible ou incohérente envoie le contact\n// dans le segment par défaut A_QUALIFIER, avec la raison du repli.\nconst SEGMENTS = ['ROUTE_DEBUTANT', 'ROUTE_PERF', 'TRAIL_DECOUVERTE', 'TRAIL_ENDURANCE'];\nconst NIVEAUX = ['debutant', 'intermediaire', 'confirme'];\nconst { lead } = $('Dédoublonner').item.json;\nconst { config } = $('Configuration').item.json;\n\nconst repli = (motif, cout = 0) => ({\n  lead,\n  qualification: {\n    segment: 'A_QUALIFIER', niveau: '', score: 0,\n    raison: `Qualification automatique impossible (${motif}).`,\n    source: 'repli', cout_usd: cout,\n  },\n});\n\nconst statut = $json.statusCode;\nconst corps = $json.body || {};\nconst usage = corps.usage || {};\nconst cout = ((usage.input_tokens || 0) * config.prixEntreeParMillion\n  + (usage.output_tokens || 0) * config.prixSortieParMillion) / 1e6;\n\nif (statut !== 200) {\n  return repli(`API ${statut || 'injoignable'}`, 0);\n}\n\nconst texte = (corps.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('');\nlet r;\ntry {\n  const debut = texte.indexOf('{');\n  const fin = texte.lastIndexOf('}');\n  r = JSON.parse(texte.slice(debut, fin + 1));\n} catch (e) {\n  return repli('JSON illisible', cout);\n}\n\nconst score = Number(r.score);\nif (!SEGMENTS.includes(r.segment)) return repli('segment inconnu', cout);\nif (!NIVEAUX.includes(r.niveau)) return repli('niveau inconnu', cout);\nif (!Number.isInteger(score) || score < 1 || score > 100) return repli('score hors bornes', cout);\nif (typeof r.raison !== 'string' || !r.raison.trim()) return repli('raison absente', cout);\n// Cohérence avec les réponses : l'IA ne peut pas classer un coureur sur route dans le trail.\nif (lead.pratique === 'route' && !r.segment.startsWith('ROUTE')) return repli('segment incohérent', cout);\nif (lead.pratique === 'trail' && !r.segment.startsWith('TRAIL')) return repli('segment incohérent', cout);\n\nreturn {\n  lead,\n  qualification: {\n    segment: r.segment, niveau: r.niveau, score,\n    raison: r.raison.trim().slice(0, 250),\n    source: 'ia', cout_usd: Math.round(cout * 1e6) / 1e6,\n  },\n};\n"
-      }
-    },
-    {
-      "id": "fd3a92df-21b6-5015-8ae4-7ae513a49c62",
-      "name": "Préparer Brevo",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
@@ -259,16 +262,30 @@
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// Prépare la création ou la mise à jour du contact dans Brevo (upsert).\n// Le contact est ajouté à la liste de son segment et retiré des autres,\n// pour qu'un changement de profil ne le laisse pas dans deux parcours.\nconst { lead, qualification: q } = $json;\nconst { config } = $('Configuration').item.json;\nconst idListe = config.listes[q.segment];\nconst autres = Object.values(config.listes).filter((id) => id && id !== idListe);\n\nreturn {\n  lead,\n  qualification: q,\n  contact: {\n    email: lead.email,\n    updateEnabled: true,\n    attributes: {\n      PRENOM: lead.prenom,\n      PRATIQUE: lead.pratique,\n      FREQUENCE: lead.frequence,\n      OBJECTIF: lead.objectif,\n      BUDGET: lead.budget,\n      SEGMENT: q.segment,\n      NIVEAU: q.niveau,\n      SCORE: q.score,\n      RAISON_IA: q.raison,\n      SOURCE_QUALIF: q.source,\n      COUT_IA_USD: q.cout_usd,\n      QUALIFIE_LE: new Date().toISOString().slice(0, 10),\n    },\n    listIds: idListe ? [idListe] : [],\n    unlinkListIds: autres,\n  },\n  leadChaud: q.score >= config.seuilLeadChaud,\n};\n"
+        "jsCode": "// Valide la réponse de Claude. Garde-fou principal du workflow :\n// toute réponse absente, illisible ou incohérente envoie le contact\n// dans le segment par défaut A_QUALIFIER, avec la raison du repli.\nconst SEGMENTS = ['ROUTE_DEBUTANT', 'ROUTE_PERF', 'TRAIL_DECOUVERTE', 'TRAIL_ENDURANCE'];\nconst NIVEAUX = ['debutant', 'intermediaire', 'confirme'];\nconst { lead } = $('Dédoublonner').item.json;\nconst { config } = $('Configuration').item.json;\n\nconst repli = (motif, cout = 0) => ({\n  lead,\n  qualification: {\n    segment: 'A_QUALIFIER', niveau: '', score: 0,\n    raison: `Qualification automatique impossible (${motif}).`,\n    source: 'repli', cout_usd: cout,\n  },\n});\n\nconst statut = $json.statusCode;\nconst corps = $json.body || {};\nconst usage = corps.usage || {};\nconst cout = ((usage.input_tokens || 0) * config.prixEntreeParMillion\n  + (usage.output_tokens || 0) * config.prixSortieParMillion) / 1e6;\n\nif (statut !== 200) {\n  return repli(`API ${statut || 'injoignable'}`, 0);\n}\n\nconst texte = (corps.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('');\nlet r;\ntry {\n  const debut = texte.indexOf('{');\n  const fin = texte.lastIndexOf('}');\n  r = JSON.parse(texte.slice(debut, fin + 1));\n} catch (e) {\n  return repli('JSON illisible', cout);\n}\n\nconst score = Number(r.score);\nif (!SEGMENTS.includes(r.segment)) return repli('segment inconnu', cout);\nif (!NIVEAUX.includes(r.niveau)) return repli('niveau inconnu', cout);\nif (!Number.isInteger(score) || score < 1 || score > 100) return repli('score hors bornes', cout);\nif (typeof r.raison !== 'string' || !r.raison.trim()) return repli('raison absente', cout);\n// Cohérence avec les réponses : l'IA ne peut pas classer un coureur sur route dans le trail.\nif (lead.pratique === 'route' && !r.segment.startsWith('ROUTE')) return repli('segment incohérent', cout);\nif (lead.pratique === 'trail' && !r.segment.startsWith('TRAIL')) return repli('segment incohérent', cout);\n\nreturn {\n  lead,\n  qualification: {\n    segment: r.segment, niveau: r.niveau, score,\n    raison: r.raison.trim().slice(0, 250),\n    source: 'ia', cout_usd: Math.round(cout * 1e6) / 1e6,\n  },\n};\n"
       }
     },
     {
-      "id": "7407c00b-3387-564a-a232-ab8a04f67c24",
+      "id": "669b3973-3279-5f2b-b189-3ac125df94b4",
+      "name": "Préparer Brevo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        400
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Prépare la création ou la mise à jour du contact dans Brevo (upsert).\n// Le contact est ajouté à la liste de son segment et retiré des autres,\n// pour qu'un changement de profil ne le laisse pas dans deux parcours.\nconst { lead, qualification: q } = $json;\nconst { config } = $('Configuration').item.json;\nconst idListe = config.listes[q.segment];\nconst autres = Object.values(config.listes).filter((id) => id && id !== idListe);\n\nreturn {\n  lead,\n  qualification: q,\n  contact: {\n    email: lead.email,\n    updateEnabled: true,\n    attributes: {\n      PRENOM: lead.prenom,\n      PRATIQUE: lead.pratique,\n      FREQUENCE: lead.frequence,\n      OBJECTIF: lead.objectif,\n      BUDGET: lead.budget,\n      SEGMENT: q.segment,\n      NIVEAU: q.niveau,\n      SCORE: q.score,\n      RAISON_IA: q.raison,\n      SOURCE_QUALIF: q.source,\n      COUT_IA_USD: q.cout_usd,\n      QUALIFIE_LE: new Date().toISOString().slice(0, 10),\n      DERNIERE_ACTIVITE: new Date().toISOString().slice(0, 10),\n    },\n    listIds: idListe ? [idListe] : [],\n    unlinkListIds: autres,\n  },\n  leadChaud: q.score >= config.seuilLeadChaud,\n};\n"
+      }
+    },
+    {
+      "id": "1e97ba0b-3d54-5c51-bbee-fede262b7838",
       "name": "Brevo : créer ou mettre à jour",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        2420,
+        2640,
         400
       ],
       "parameters": {
@@ -289,12 +306,12 @@
       }
     },
     {
-      "id": "315c1973-8836-5360-86bf-dbbe131163fa",
-      "name": "Lead chaud ?",
+      "id": "4a201d75-0a07-56e1-b2a0-02edc211b13c",
+      "name": "Nouvel inscrit ?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        2640,
+        2860,
         400
       ],
       "parameters": {
@@ -307,8 +324,8 @@
           },
           "conditions": [
             {
-              "id": "1a651743-a7c5-5a38-8329-af93923b415d",
-              "leftValue": "={{ $('Préparer Brevo').item.json.leadChaud }}",
+              "id": "b4a7fdf2-6153-5777-9c21-03d42e6d99d7",
+              "leftValue": "={{ $('Dédoublonner').item.json.existant === false }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -323,27 +340,84 @@
       }
     },
     {
-      "id": "be43c05b-dbc0-5d5c-a382-2dbab39f481b",
-      "name": "Préparer l'alerte",
+      "id": "55fc35c5-ff0c-5dc4-9475-9f039a68ca67",
+      "name": "Préparer la bienvenue",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2860,
-        300
+        3080,
+        560
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// Email d'alerte « lead chaud », envoyé via l'API transactionnelle Brevo.\nconst { lead, qualification: q } = $('Préparer Brevo').item.json;\nconst { config } = $('Configuration').item.json;\nconst e = (s) => String(s ?? '').replace(/[&<>\"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' }[c]));\n\nconst lignes = [\n  ['Prénom', lead.prenom], ['Email', lead.email], ['Segment', q.segment], ['Niveau', q.niveau],\n  ['Score', `${q.score}/100`], ['Pourquoi', q.raison], ['Pratique', lead.pratique],\n  ['Sorties/semaine', lead.frequence], ['Objectif', lead.objectif], ['Budget annuel', lead.budget],\n].map(([k, v]) => `<tr><td style=\"padding:6px 14px 6px 0;color:#6e6e73\">${e(k)}</td><td style=\"padding:6px 0\">${e(v)}</td></tr>`).join('');\n\nreturn {\n  email: {\n    sender: config.expediteur,\n    to: [{ email: config.emailAlerte }],\n    replyTo: { email: lead.email },\n    subject: `🔥 Lead chaud ${config.marque} : ${lead.prenom || lead.email} (${q.score}/100)`,\n    htmlContent: `<div style=\"font-family:-apple-system,Helvetica,Arial,sans-serif;color:#1d1d1f\">\n<h2 style=\"margin:0 0 12px\">Nouveau lead chaud : ${q.score}/100</h2>\n<table style=\"font-size:15px;border-collapse:collapse\">${lignes}</table>\n<p style=\"color:#6e6e73;font-size:13px\">Répondre à cet email écrit directement au lead.</p></div>`,\n    tags: ['pacewell-alerte'],\n  },\n};\n"
+        "jsCode": "// ---- Outils communs (ajoutés en tête des nœuds 08 et suivants par construire_workflow.py) ----\n// Un nœud Code de n8n ne peut pas importer de fichier : ce bloc est recopié dans chacun.\nconst e = (s) => String(s ?? '').replace(/[&<>\"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' }[c]));\nconst aujourdhui = () => new Date().toISOString().slice(0, 10);\n\nconst SEGMENTS_LIBELLES = {\n  ROUTE_DEBUTANT: 'Route · Débuter', ROUTE_PERF: 'Route · Performance',\n  TRAIL_DECOUVERTE: 'Trail · Découverte', TRAIL_ENDURANCE: 'Trail · Endurance et ultra', A_QUALIFIER: 'À qualifier',\n};\nconst NIVEAUX_LIBELLES = { debutant: 'Débutant', intermediaire: 'Intermédiaire', confirme: 'Confirmé' };\nconst REPONSES_LIBELLES = {\n  pratique: { route: 'Route', trail: 'Trail', 'les-deux': 'Route et trail' },\n  frequence: { 'moins-1': 'Moins d\\'une sortie par semaine', '1-2': '1 à 2 sorties par semaine', '3-4': '3 à 4 sorties par semaine', '5-plus': '5 sorties ou plus par semaine' },\n  objectif: { forme: 'Garder la forme', '10km': '10 km', semi: 'Semi-marathon', marathon: 'Marathon', 'trail-court': 'Trail court', ultra: 'Ultra-trail' },\n  budget: { 'moins-150': 'Moins de 150 € par an', '150-400': '150 à 400 € par an', '400-plus': 'Plus de 400 € par an' },\n};\nconst lisible = (champ, v) => REPONSES_LIBELLES[champ]?.[v] ?? v ?? '—';\n\n// Ce que l'IA n'a pas le droit d'écrire au nom de la marque : prix, promotions, liens,\n// adresses, emoji, promesses de santé. Un texte qui en contient est remplacé par le modèle.\nconst INTERDITS = [\n  [/https?:|www\\.|\\.(fr|com)\\b/i, 'lien'],\n  [/@/, 'adresse email'],\n  [/€|\\d\\s*%|\\beuros?\\b/i, 'prix ou pourcentage'],\n  [/promo|réduc|remise|solde|offert|gratuit|cadeau/i, 'promotion'],\n  [/guéri|médic|traitement/i, 'promesse de santé'],\n  [/\\p{Extended_Pictographic}/u, 'emoji'],\n];\nfunction problemeTexte(texte, max) {\n  if (typeof texte !== 'string' || !texte.trim()) return 'texte vide';\n  if (texte.length > max) return `texte trop long (${texte.length} > ${max})`;\n  for (const [motif, nom] of INTERDITS) if (motif.test(texte)) return nom;\n  return null;\n}\n\n// Lit le JSON d'une réponse Claude (réponse HTTP complète de n8n) et calcule son coût.\nfunction lireClaude(reponse, config) {\n  const corps = reponse.body || {};\n  const usage = corps.usage || {};\n  const cout = ((usage.input_tokens || 0) * config.prixEntreeParMillion\n    + (usage.output_tokens || 0) * config.prixSortieParMillion) / 1e6;\n  const arrondi = Math.round(cout * 1e6) / 1e6;\n  if (reponse.statusCode !== 200) return { erreur: `API ${reponse.statusCode || 'injoignable'}`, cout: arrondi };\n  const texte = (corps.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('');\n  try {\n    return { donnees: JSON.parse(texte.slice(texte.indexOf('{'), texte.lastIndexOf('}') + 1)), cout: arrondi };\n  } catch (err) {\n    return { erreur: 'JSON illisible', cout: arrondi };\n  }\n}\n\n// Jeton aléatoire pour les liens de validation (usage unique, stocké dans Brevo).\nfunction jeton() {\n  const octets = new Uint8Array(18);\n  if (globalThis.crypto?.getRandomValues) globalThis.crypto.getRandomValues(octets);\n  else for (let i = 0; i < octets.length; i++) octets[i] = Math.floor(Math.random() * 256);\n  return Array.from(octets, (o) => o.toString(16).padStart(2, '0')).join('');\n}\n\n// Gabarit HTML des emails de la marque : tableaux et styles en ligne (Gmail, Outlook, mobile).\nconst COULEURS = { encre: '#10213a', craie: '#e8ebee', piste: '#ff5a1f', gris: '#5b6676', filet: '#dde1e6' };\nfunction gabaritEmail({ marque, etiquette, preheader, corps, pied }) {\n  const C = COULEURS;\n  return `<!doctype html>\n<html lang=\"fr\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>${e(marque)}</title></head>\n<body style=\"margin:0;padding:0;background:${C.craie}\">\n<div style=\"display:none;max-height:0;overflow:hidden\">${e(preheader)}</div>\n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:${C.craie}\">\n  <tr><td align=\"center\" style=\"padding:28px 12px\">\n    <table role=\"presentation\" width=\"560\" cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;max-width:560px;background:#ffffff;border-radius:6px;overflow:hidden;font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color:${C.encre}\">\n      <tr><td style=\"background:${C.encre};padding:18px 28px\">\n        <span style=\"font-size:18px;font-weight:800;color:#ffffff;letter-spacing:-0.3px\">${e(marque.toLowerCase())}</span>\n        ${etiquette ? `<span style=\"font-size:13px;color:#aab4c3;padding-left:10px\">${e(etiquette)}</span>` : ''}\n      </td></tr>\n${corps}\n      <tr><td style=\"padding:14px 28px;background:#f4f6f8;font-size:12px;line-height:1.5;color:${C.gris}\">${pied}</td></tr>\n    </table>\n  </td></tr>\n</table>\n</body></html>`;\n}\nconst paragraphe = (texte, style = '') => `<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;${style}\">${e(texte)}</p>`;\nfunction bouton(libelle, lien, couleur = COULEURS.piste) {\n  return `<table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\"><tr>\n          <td style=\"background:${couleur};border-radius:4px\"><a href=\"${e(lien)}\" style=\"display:inline-block;padding:13px 22px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none\">${e(libelle)}</a></td>\n        </tr></table>`;\n}\nconst PIED_DEMO = (marque) => `${e(marque)} est une marque fictive : cet email fait partie d'une démonstration de Simon Delrue, développeur web &amp; IA. Pour supprimer tes données, réponds simplement à cet email.`;\n// ---- Fin des outils communs ----\n\n// Étape 2 : demande à Claude le contenu de l'email de bienvenue.\n// Comme pour la qualification, l'IA ne reçoit ni le prénom ni l'email :\n// le prénom est ajouté ensuite par le gabarit.\nconst { lead, qualification: q } = $('Préparer Brevo').item.json;\nconst { config } = $('Configuration').item.json;\n\nconst consignes = `Tu écris l'email de bienvenue de ${config.marque}, une boutique en ligne de running et de trail.\nLe lecteur vient de s'inscrire. Tu le tutoies, sur un ton chaleureux, direct et concret, comme un vendeur passionné en magasin.\nTu t'appuies uniquement sur son profil. Chaque conseil doit être utile cette semaine pour CE coureur (fréquence, objectif, terrain).\n\nInterdits absolus : prix, pourcentages, promotions, réductions, cadeaux, liens, adresses email, emoji,\nnoms de marques, promesses de santé ou de résultat, informations inventées sur ${config.marque} (livraison, retours, magasins).\n\nRéponds UNIQUEMENT avec un objet JSON, sans texte autour :\n{\"objet\": \"objet de l'email, 60 caractères maximum, sans emoji\",\n \"intro\": \"2 phrases, 45 mots maximum, qui montrent que tu as compris son profil\",\n \"conseils\": [\"conseil 1, 25 mots maximum\", \"conseil 2\", \"conseil 3\"],\n \"selection\": \"une phrase, 30 mots maximum, sur le type d'équipement à regarder en priorité pour son profil, sans marque\"}`;\n\nconst profil = {\n  segment: SEGMENTS_LIBELLES[q.segment] ?? q.segment,\n  niveau: NIVEAUX_LIBELLES[q.niveau] ?? 'inconnu',\n  pratique: lisible('pratique', lead.pratique),\n  frequence: lisible('frequence', lead.frequence),\n  objectif: lisible('objectif', lead.objectif),\n  budget_equipement: lisible('budget', lead.budget),\n};\n\nreturn {\n  requete: {\n    model: config.modele,\n    max_tokens: 500,\n    system: consignes,\n    messages: [{ role: 'user', content: 'Profil du nouvel inscrit :\\n' + JSON.stringify(profil, null, 1) }],\n  },\n};\n"
       }
     },
     {
-      "id": "78fcb36e-cc4e-57c8-b24a-e038c115f274",
-      "name": "Brevo : envoyer l'alerte",
+      "id": "58bdfd40-2cb4-5f26-8a6a-1c309019de96",
+      "name": "Claude : rédiger la bienvenue",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        3080,
-        300
+        3300,
+        560
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configuration').item.json.config.urlClaude }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 30000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.requete) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Claude API"
+        }
+      }
+    },
+    {
+      "id": "e192d22e-c411-5fe7-9e73-17c353c7e58a",
+      "name": "Composer la bienvenue",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3520,
+        560
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// ---- Outils communs (ajoutés en tête des nœuds 08 et suivants par construire_workflow.py) ----\n// Un nœud Code de n8n ne peut pas importer de fichier : ce bloc est recopié dans chacun.\nconst e = (s) => String(s ?? '').replace(/[&<>\"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' }[c]));\nconst aujourdhui = () => new Date().toISOString().slice(0, 10);\n\nconst SEGMENTS_LIBELLES = {\n  ROUTE_DEBUTANT: 'Route · Débuter', ROUTE_PERF: 'Route · Performance',\n  TRAIL_DECOUVERTE: 'Trail · Découverte', TRAIL_ENDURANCE: 'Trail · Endurance et ultra', A_QUALIFIER: 'À qualifier',\n};\nconst NIVEAUX_LIBELLES = { debutant: 'Débutant', intermediaire: 'Intermédiaire', confirme: 'Confirmé' };\nconst REPONSES_LIBELLES = {\n  pratique: { route: 'Route', trail: 'Trail', 'les-deux': 'Route et trail' },\n  frequence: { 'moins-1': 'Moins d\\'une sortie par semaine', '1-2': '1 à 2 sorties par semaine', '3-4': '3 à 4 sorties par semaine', '5-plus': '5 sorties ou plus par semaine' },\n  objectif: { forme: 'Garder la forme', '10km': '10 km', semi: 'Semi-marathon', marathon: 'Marathon', 'trail-court': 'Trail court', ultra: 'Ultra-trail' },\n  budget: { 'moins-150': 'Moins de 150 € par an', '150-400': '150 à 400 € par an', '400-plus': 'Plus de 400 € par an' },\n};\nconst lisible = (champ, v) => REPONSES_LIBELLES[champ]?.[v] ?? v ?? '—';\n\n// Ce que l'IA n'a pas le droit d'écrire au nom de la marque : prix, promotions, liens,\n// adresses, emoji, promesses de santé. Un texte qui en contient est remplacé par le modèle.\nconst INTERDITS = [\n  [/https?:|www\\.|\\.(fr|com)\\b/i, 'lien'],\n  [/@/, 'adresse email'],\n  [/€|\\d\\s*%|\\beuros?\\b/i, 'prix ou pourcentage'],\n  [/promo|réduc|remise|solde|offert|gratuit|cadeau/i, 'promotion'],\n  [/guéri|médic|traitement/i, 'promesse de santé'],\n  [/\\p{Extended_Pictographic}/u, 'emoji'],\n];\nfunction problemeTexte(texte, max) {\n  if (typeof texte !== 'string' || !texte.trim()) return 'texte vide';\n  if (texte.length > max) return `texte trop long (${texte.length} > ${max})`;\n  for (const [motif, nom] of INTERDITS) if (motif.test(texte)) return nom;\n  return null;\n}\n\n// Lit le JSON d'une réponse Claude (réponse HTTP complète de n8n) et calcule son coût.\nfunction lireClaude(reponse, config) {\n  const corps = reponse.body || {};\n  const usage = corps.usage || {};\n  const cout = ((usage.input_tokens || 0) * config.prixEntreeParMillion\n    + (usage.output_tokens || 0) * config.prixSortieParMillion) / 1e6;\n  const arrondi = Math.round(cout * 1e6) / 1e6;\n  if (reponse.statusCode !== 200) return { erreur: `API ${reponse.statusCode || 'injoignable'}`, cout: arrondi };\n  const texte = (corps.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('');\n  try {\n    return { donnees: JSON.parse(texte.slice(texte.indexOf('{'), texte.lastIndexOf('}') + 1)), cout: arrondi };\n  } catch (err) {\n    return { erreur: 'JSON illisible', cout: arrondi };\n  }\n}\n\n// Jeton aléatoire pour les liens de validation (usage unique, stocké dans Brevo).\nfunction jeton() {\n  const octets = new Uint8Array(18);\n  if (globalThis.crypto?.getRandomValues) globalThis.crypto.getRandomValues(octets);\n  else for (let i = 0; i < octets.length; i++) octets[i] = Math.floor(Math.random() * 256);\n  return Array.from(octets, (o) => o.toString(16).padStart(2, '0')).join('');\n}\n\n// Gabarit HTML des emails de la marque : tableaux et styles en ligne (Gmail, Outlook, mobile).\nconst COULEURS = { encre: '#10213a', craie: '#e8ebee', piste: '#ff5a1f', gris: '#5b6676', filet: '#dde1e6' };\nfunction gabaritEmail({ marque, etiquette, preheader, corps, pied }) {\n  const C = COULEURS;\n  return `<!doctype html>\n<html lang=\"fr\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>${e(marque)}</title></head>\n<body style=\"margin:0;padding:0;background:${C.craie}\">\n<div style=\"display:none;max-height:0;overflow:hidden\">${e(preheader)}</div>\n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:${C.craie}\">\n  <tr><td align=\"center\" style=\"padding:28px 12px\">\n    <table role=\"presentation\" width=\"560\" cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;max-width:560px;background:#ffffff;border-radius:6px;overflow:hidden;font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color:${C.encre}\">\n      <tr><td style=\"background:${C.encre};padding:18px 28px\">\n        <span style=\"font-size:18px;font-weight:800;color:#ffffff;letter-spacing:-0.3px\">${e(marque.toLowerCase())}</span>\n        ${etiquette ? `<span style=\"font-size:13px;color:#aab4c3;padding-left:10px\">${e(etiquette)}</span>` : ''}\n      </td></tr>\n${corps}\n      <tr><td style=\"padding:14px 28px;background:#f4f6f8;font-size:12px;line-height:1.5;color:${C.gris}\">${pied}</td></tr>\n    </table>\n  </td></tr>\n</table>\n</body></html>`;\n}\nconst paragraphe = (texte, style = '') => `<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;${style}\">${e(texte)}</p>`;\nfunction bouton(libelle, lien, couleur = COULEURS.piste) {\n  return `<table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\"><tr>\n          <td style=\"background:${couleur};border-radius:4px\"><a href=\"${e(lien)}\" style=\"display:inline-block;padding:13px 22px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none\">${e(libelle)}</a></td>\n        </tr></table>`;\n}\nconst PIED_DEMO = (marque) => `${e(marque)} est une marque fictive : cet email fait partie d'une démonstration de Simon Delrue, développeur web &amp; IA. Pour supprimer tes données, réponds simplement à cet email.`;\n// ---- Fin des outils communs ----\n\n// Étape 2 : vérifie le texte de l'IA et compose l'email de bienvenue.\n// Si l'IA est en panne ou écrit quelque chose d'interdit, un modèle rédigé à la main\n// pour le segment prend le relais : l'inscrit reçoit toujours un email correct.\nconst { lead, qualification: q } = $('Préparer Brevo').item.json;\nconst { config } = $('Configuration').item.json;\n\nconst MODELES = {\n  ROUTE_DEBUTANT: {\n    objet: 'Bienvenue : on court ensemble ?',\n    intro: 'Bienvenue dans la communauté. Reprendre ou débuter la course, c\\'est surtout trouver un rythme qui tient dans la durée.',\n    conseils: [\n      'Alterne marche et course sur tes premières sorties : la régularité compte plus que la distance.',\n      'Garde une allure où tu peux parler : c\\'est elle qui construit ton endurance.',\n      'Laisse au moins un jour de repos entre deux sorties au début.',\n    ],\n    selection: 'Commence par une paire de chaussures de route amortie, adaptée à ta foulée : c\\'est l\\'équipement qui compte le plus.',\n  },\n  ROUTE_PERF: {\n    objet: 'Bienvenue : préparons ton prochain chrono',\n    intro: 'Bienvenue. Tu as un objectif chronométré en tête, alors on va t\\'aider à arriver frais et prêt le jour J.',\n    conseils: [\n      'Garde une sortie longue par semaine, à allure facile : elle construit ta base.',\n      'Ajoute une séance de fractionné court pour gagner en vitesse sans t\\'épuiser.',\n      'Teste ta tenue et ton ravitaillement à l\\'entraînement, jamais pour la première fois en course.',\n    ],\n    selection: 'Regarde une paire de chaussures légères et dynamiques pour les séances rapides, en plus de ta paire d\\'entraînement.',\n  },\n  TRAIL_DECOUVERTE: {\n    objet: 'Bienvenue sur les sentiers',\n    intro: 'Bienvenue. Le trail, c\\'est la course avec du relief et du paysage : on t\\'accompagne pour tes premiers sentiers.',\n    conseils: [\n      'Marche dans les montées raides : tout le monde le fait, même les meilleurs.',\n      'Regarde deux ou trois mètres devant toi dans les descentes pour anticiper tes appuis.',\n      'Pars toujours avec de l\\'eau, même pour une sortie d\\'une heure.',\n    ],\n    selection: 'Une paire de chaussures de trail avec une bonne accroche changera tes sorties plus que tout le reste.',\n  },\n  TRAIL_ENDURANCE: {\n    objet: 'Bienvenue : cap sur les longues distances',\n    intro: 'Bienvenue. Tu vises les longues distances : on va parler gestion d\\'effort, matériel fiable et récupération.',\n    conseils: [\n      'Entraîne-toi à manger en courant lors de tes sorties longues, ton estomac aussi s\\'entraîne.',\n      'Ajoute du dénivelé régulièrement, en montée comme en descente.',\n      'Prévois une semaine plus légère toutes les trois ou quatre semaines pour bien assimiler.',\n    ],\n    selection: 'Regarde en priorité un sac d\\'hydratation confortable et des chaussures de trail amorties pour les longues heures.',\n  },\n};\nMODELES.A_QUALIFIER = { ...MODELES.ROUTE_DEBUTANT, objet: `Bienvenue chez ${config.marque}` };\n\n// Vérification du texte proposé par l'IA.\nconst ia = lireClaude($json, config);\nlet contenu = ia.donnees;\nlet motif = ia.erreur || null;\nif (!motif) {\n  const c = contenu;\n  motif = problemeTexte(c.objet, 70) || problemeTexte(c.intro, 320) || problemeTexte(c.selection, 240)\n    || (!Array.isArray(c.conseils) || c.conseils.length !== 3 ? 'il faut 3 conseils' : null)\n    || c.conseils.map((t) => problemeTexte(t, 200)).find(Boolean) || null;\n}\nconst source = motif ? 'modele' : 'ia';\nif (motif) contenu = MODELES[q.segment] || MODELES.A_QUALIFIER;\n\nconst prenom = lead.prenom || '';\nconst C = COULEURS;\nconst puces = contenu.conseils.map((t) => `\n            <tr>\n              <td style=\"width:22px;vertical-align:top;padding:4px 0\"><span style=\"display:inline-block;width:8px;height:8px;border-radius:99px;background:${C.piste}\"></span></td>\n              <td style=\"padding:0 0 12px;font-size:15px;line-height:1.5\">${e(t.trim())}</td>\n            </tr>`).join('');\n\nconst corps = `\n      <tr><td style=\"padding:30px 28px 6px\">\n        <h1 style=\"margin:0 0 14px;font-size:26px;line-height:1.2\">${e(prenom ? `Salut ${prenom},` : 'Salut,')}</h1>\n        ${paragraphe(contenu.intro.trim())}\n        <p style=\"margin:0;font-size:13px;color:${C.gris}\">Ton profil : <strong style=\"color:${C.encre}\">${e(SEGMENTS_LIBELLES[q.segment] ?? 'Coureur')}</strong></p>\n      </td></tr>\n      <tr><td style=\"padding:18px 28px 6px\">\n        <p style=\"margin:0 0 12px;font-size:17px;font-weight:800\">Trois conseils pour tes prochaines sorties</p>\n        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">${puces}\n        </table>\n      </td></tr>\n      <tr><td style=\"padding:6px 28px 4px\">\n        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:${C.craie};border-left:4px solid ${C.piste};border-radius:4px\">\n          <tr><td style=\"padding:14px 16px;font-size:15px;line-height:1.5\">\n            <span style=\"display:block;font-size:12px;font-weight:700;color:${C.gris};padding-bottom:4px\">Notre conseil équipement</span>${e(contenu.selection.trim())}\n          </td></tr>\n        </table>\n      </td></tr>\n      <tr><td style=\"padding:22px 28px 28px\">\n        ${bouton('Voir la sélection', config.urlSite)}\n      </td></tr>`;\n\nconst htmlContent = gabaritEmail({\n  marque: config.marque,\n  preheader: contenu.intro.trim(),\n  corps,\n  pied: PIED_DEMO(config.marque),\n});\nconst textContent = [\n  prenom ? `Salut ${prenom},` : 'Salut,',\n  '',\n  contenu.intro.trim(),\n  '',\n  'Trois conseils pour tes prochaines sorties :',\n  ...contenu.conseils.map((t) => `- ${t.trim()}`),\n  '',\n  `Notre conseil équipement : ${contenu.selection.trim()}`,\n  '',\n  `Voir la sélection : ${config.urlSite}`,\n  '',\n  `${config.marque} est une marque fictive : cet email fait partie d'une démonstration de Simon Delrue. Pour supprimer tes données, réponds à cet email.`,\n].join('\\n');\n\nreturn {\n  bienvenue: { source, motif, cout_usd: ia.cout },\n  email: {\n    sender: config.expediteurMarque,\n    to: [{ email: lead.email, ...(prenom ? { name: prenom } : {}) }],\n    replyTo: { email: config.emailAlerte },\n    subject: contenu.objet.trim(),\n    htmlContent,\n    textContent,\n    tags: ['pacewell-bienvenue'],\n  },\n};\n"
+      }
+    },
+    {
+      "id": "793ad902-5a2e-5429-b4cf-c1ca14ec8f55",
+      "name": "Brevo : envoyer la bienvenue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3740,
+        560
       ],
       "parameters": {
         "method": "POST",
@@ -360,22 +434,80 @@
           "id": "",
           "name": "Brevo API"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
-      "id": "1aabb81e-7bc8-5514-b4ff-b48de1fa07a7",
-      "name": "Réponse : inscrit",
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.5,
+      "id": "4791aaa0-5226-5421-bd92-662d327d35ed",
+      "name": "Lead chaud ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
       "position": [
-        3300,
+        3960,
         400
       ],
       "parameters": {
-        "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ ok: true }) }}",
-        "options": {
-          "responseCode": 200
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bd72c940-d1b7-5186-9594-20c3ea4b5050",
+              "leftValue": "={{ $('Préparer Brevo').item.json.leadChaud }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "1ada689e-c60a-5d4f-8cfe-1e0094823ead",
+      "name": "Préparer l'alerte",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4180,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Email d'alerte « lead chaud », envoyé via l'API transactionnelle Brevo.\n// Mise en page en tableaux et styles en ligne (compatible Gmail, Outlook, mobile),\n// version texte jointe, objet sans emoji pour une meilleure délivrabilité.\nconst { lead, qualification: q } = $('Préparer Brevo').item.json;\nconst { config } = $('Configuration').item.json;\nconst e = (s) => String(s ?? '').replace(/[&<>\"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' }[c]));\n\nconst SEGMENTS = {\n  ROUTE_DEBUTANT: 'Route · Débuter', ROUTE_PERF: 'Route · Performance',\n  TRAIL_DECOUVERTE: 'Trail · Découverte', TRAIL_ENDURANCE: 'Trail · Endurance et ultra', A_QUALIFIER: 'À qualifier',\n};\nconst NIVEAUX = { debutant: 'Débutant', intermediaire: 'Intermédiaire', confirme: 'Confirmé' };\nconst REPONSES = {\n  pratique: { route: 'Route', trail: 'Trail', 'les-deux': 'Route et trail' },\n  frequence: { 'moins-1': 'Moins d\\'une sortie', '1-2': '1 à 2 sorties', '3-4': '3 à 4 sorties', '5-plus': '5 sorties ou plus' },\n  objectif: { forme: 'Garder la forme', '10km': '10 km', semi: 'Semi-marathon', marathon: 'Marathon', 'trail-court': 'Trail court', ultra: 'Ultra' },\n  budget: { 'moins-150': 'Moins de 150 €', '150-400': '150 à 400 €', '400-plus': 'Plus de 400 €' },\n};\nconst lisible = (champ, v) => REPONSES[champ]?.[v] ?? v ?? '—';\n\nconst nom = lead.prenom || lead.email;\nconst score = Math.max(0, Math.min(100, Number(q.score) || 0));\nconst segment = SEGMENTS[q.segment] ?? q.segment;\nconst niveau = NIVEAUX[q.niveau] ?? q.niveau;\nconst reponses = [\n  ['Pratique', lisible('pratique', lead.pratique)],\n  ['Sorties par semaine', lisible('frequence', lead.frequence)],\n  ['Objectif', lisible('objectif', lead.objectif)],\n  ['Budget équipement par an', lisible('budget', lead.budget)],\n];\n\n// Couleurs de la marque : encre, craie, orange piste\nconst ENCRE = '#10213a', CRAIE = '#e8ebee', PISTE = '#ff5a1f', GRIS = '#5b6676';\n\nconst lignes = reponses.map(([k, v]) => `\n          <tr>\n            <td style=\"padding:10px 0;border-top:1px solid #dde1e6;font-size:14px;color:${GRIS};width:48%\">${e(k)}</td>\n            <td style=\"padding:10px 0;border-top:1px solid #dde1e6;font-size:14px;color:${ENCRE};font-weight:600\">${e(v)}</td>\n          </tr>`).join('');\n\nconst htmlContent = `<!doctype html>\n<html lang=\"fr\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Lead chaud ${e(config.marque)}</title></head>\n<body style=\"margin:0;padding:0;background:${CRAIE}\">\n<div style=\"display:none;max-height:0;overflow:hidden\">${e(nom)} : ${score}/100, ${e(segment)}. ${e(q.raison)}</div>\n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:${CRAIE}\">\n  <tr><td align=\"center\" style=\"padding:28px 12px\">\n    <table role=\"presentation\" width=\"560\" cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;max-width:560px;background:#ffffff;border-radius:6px;overflow:hidden;font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif\">\n      <tr><td style=\"background:${ENCRE};padding:18px 28px\">\n        <span style=\"font-size:18px;font-weight:800;color:#ffffff;letter-spacing:-0.3px\">${e(config.marque.toLowerCase())}</span>\n        <span style=\"font-size:13px;color:#aab4c3;padding-left:10px\">Alerte CRM</span>\n      </td></tr>\n      <tr><td style=\"padding:28px 28px 8px\">\n        <p style=\"margin:0 0 6px;font-size:13px;font-weight:700;color:${PISTE};text-transform:none\">Nouveau lead chaud</p>\n        <h1 style=\"margin:0 0 18px;font-size:26px;line-height:1.2;color:${ENCRE}\">${e(nom)}</h1>\n        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n          <tr>\n            <td style=\"font-size:44px;font-weight:800;color:${ENCRE};line-height:1;width:120px\">${score}<span style=\"font-size:16px;color:${GRIS};font-weight:600\">/100</span></td>\n            <td style=\"vertical-align:bottom;padding-bottom:6px\">\n              <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#e3e7ec;border-radius:99px\">\n                <tr><td style=\"height:10px;width:${score}%;background:${PISTE};border-radius:99px;font-size:0;line-height:0\">&nbsp;</td><td style=\"font-size:0;line-height:0\">&nbsp;</td></tr>\n              </table>\n            </td>\n          </tr>\n        </table>\n        <p style=\"margin:16px 0 0;font-size:15px;color:${ENCRE}\"><strong>${e(segment)}</strong> · ${e(niveau)}</p>\n      </td></tr>\n      <tr><td style=\"padding:16px 28px 4px\">\n        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:${CRAIE};border-left:4px solid ${PISTE};border-radius:4px\">\n          <tr><td style=\"padding:14px 16px;font-size:15px;line-height:1.5;color:${ENCRE}\">\n            <span style=\"display:block;font-size:12px;font-weight:700;color:${GRIS};padding-bottom:4px\">Pourquoi l'IA le juge chaud</span>${e(q.raison)}\n          </td></tr>\n        </table>\n      </td></tr>\n      <tr><td style=\"padding:18px 28px 6px\">\n        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">${lignes}\n          <tr>\n            <td style=\"padding:10px 0;border-top:1px solid #dde1e6;font-size:14px;color:${GRIS}\">Email</td>\n            <td style=\"padding:10px 0;border-top:1px solid #dde1e6;font-size:14px\"><a href=\"mailto:${e(lead.email)}\" style=\"color:${ENCRE}\">${e(lead.email)}</a></td>\n          </tr>\n        </table>\n      </td></tr>\n      <tr><td style=\"padding:18px 28px 28px\">\n        <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\"><tr>\n          <td style=\"background:${PISTE};border-radius:4px\"><a href=\"mailto:${e(lead.email)}?subject=${encodeURIComponent(`Ton profil ${config.marque}`)}\" style=\"display:inline-block;padding:13px 22px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none\">Écrire à ${e(nom)}</a></td>\n        </tr></table>\n        <p style=\"margin:14px 0 0;font-size:13px;color:${GRIS}\">Tu peux aussi répondre directement à cet email : la réponse part chez le lead.</p>\n      </td></tr>\n      <tr><td style=\"padding:14px 28px;background:#f4f6f8;font-size:12px;color:${GRIS}\">\n        Qualifié automatiquement par l'IA (${e(q.source === 'ia' ? 'Claude Haiku' : 'règle de repli')}). Seuil d'alerte : ${e(config.seuilLeadChaud)}/100.\n      </td></tr>\n    </table>\n  </td></tr>\n</table>\n</body></html>`;\n\nconst textContent = [\n  `Nouveau lead chaud ${config.marque} : ${nom}`,\n  `Score : ${score}/100`,\n  `Segment : ${segment} (${niveau})`,\n  '',\n  `Pourquoi : ${q.raison}`,\n  '',\n  ...reponses.map(([k, v]) => `${k} : ${v}`),\n  `Email : ${lead.email}`,\n  '',\n  'Répondre à cet email écrit directement au lead.',\n].join('\\n');\n\nreturn {\n  email: {\n    sender: config.expediteur,\n    to: [{ email: config.emailAlerte }],\n    replyTo: { email: lead.email },\n    subject: `Lead chaud ${config.marque} : ${nom} (${score}/100)`,\n    htmlContent,\n    textContent,\n    tags: ['pacewell-alerte'],\n  },\n};\n"
+      }
+    },
+    {
+      "id": "02144b8c-6c2a-5f19-ad0d-ef055137373a",
+      "name": "Brevo : envoyer l'alerte",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        4400,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configuration').item.json.config.urlBrevo }}/smtp/email",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.email) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Brevo API"
         }
       }
     }
@@ -418,7 +550,7 @@
       "main": [
         [
           {
-            "node": "Brevo : contact existant ?",
+            "node": "Réponse : inscrit",
             "type": "main",
             "index": 0
           }
@@ -426,6 +558,17 @@
         [
           {
             "node": "Réponse : refus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Réponse : inscrit": {
+      "main": [
+        [
+          {
+            "node": "Brevo : contact existant ?",
             "type": "main",
             "index": 0
           }
@@ -456,13 +599,7 @@
     },
     "Déjà qualifié ?": {
       "main": [
-        [
-          {
-            "node": "Réponse : inscrit",
-            "type": "main",
-            "index": 0
-          }
-        ],
+        [],
         [
           {
             "node": "Préparer le prompt",
@@ -520,6 +657,68 @@
       "main": [
         [
           {
+            "node": "Nouvel inscrit ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nouvel inscrit ?": {
+      "main": [
+        [
+          {
+            "node": "Préparer la bienvenue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Lead chaud ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer la bienvenue": {
+      "main": [
+        [
+          {
+            "node": "Claude : rédiger la bienvenue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude : rédiger la bienvenue": {
+      "main": [
+        [
+          {
+            "node": "Composer la bienvenue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Composer la bienvenue": {
+      "main": [
+        [
+          {
+            "node": "Brevo : envoyer la bienvenue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brevo : envoyer la bienvenue": {
+      "main": [
+        [
+          {
             "node": "Lead chaud ?",
             "type": "main",
             "index": 0
@@ -532,13 +731,6 @@
         [
           {
             "node": "Préparer l'alerte",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Réponse : inscrit",
             "type": "main",
             "index": 0
           }
@@ -555,21 +747,11 @@
           }
         ]
       ]
-    },
-    "Brevo : envoyer l'alerte": {
-      "main": [
-        [
-          {
-            "node": "Réponse : inscrit",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "timezone": "Europe/Paris"
   },
   "pinData": {},
   "active": false

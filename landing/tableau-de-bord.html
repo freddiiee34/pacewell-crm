@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pacewell · Le CRM en direct</title>
+  <meta name="description" content="Tableau de bord de démonstration : inscrits qualifiés par l'IA, segments, scores, emails envoyés, coût de l'IA et évaluation sur 30 profils annotés.">
+  <meta name="theme-color" content="#e8ebee">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --craie: #e8ebee; --papier: #ffffff; --encre: #10213a; --encre-douce: #50607a;
+      --piste: #ff5a1f; --trait: #c9d0d8; --vert: #1f7a4d;
+      --police: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin: 0; background: var(--craie); color: var(--encre); font: 400 16px/1.5 var(--police); }
+    a { color: inherit; }
+    .page { max-width: 1120px; margin: 0 auto; padding: 0 24px 64px; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; gap: 16px; }
+    .logo { font-weight: 900; font-size: 22px; letter-spacing: -0.02em; text-decoration: none; font-variation-settings: "wdth" 125; }
+    .logo svg { vertical-align: -3px; margin-right: 6px; }
+    header nav a { font-size: 15px; font-weight: 600; text-decoration: none; border-bottom: 2px solid var(--piste); padding-bottom: 2px; }
+
+    h1 { margin: 40px 0 12px; font-weight: 900; line-height: .95; letter-spacing: -0.035em; font-size: clamp(40px, 6.4vw, 84px); font-variation-settings: "wdth" 125; max-width: 14ch; }
+    .chapo { font-size: 18px; color: var(--encre-douce); max-width: 60ch; margin: 0 0 8px; }
+    .etat { font-size: 14px; color: var(--encre-douce); margin: 0 0 36px; min-height: 1.5em; }
+    .etat.erreur { color: #c2260f; font-weight: 600; }
+
+    /* Tableau d'affichage façon résultats de course : une ligne de temps intermédiaires. */
+    .affichage { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--encre); color: var(--papier); border-radius: 12px; overflow: hidden; }
+    .affichage div { padding: 22px 24px 20px; border-left: 1px solid rgba(255,255,255,.14); }
+    .affichage div:first-child { border-left: 0; }
+    .affichage dt { font-size: 14px; color: #aab4c3; }
+    .affichage dd { margin: 4px 0 0; font-weight: 850; font-size: clamp(34px, 4.4vw, 52px); line-height: 1; font-variant-numeric: tabular-nums; font-variation-settings: "wdth" 112; letter-spacing: -0.02em; }
+    .affichage dd small { font-size: 15px; font-weight: 600; color: #aab4c3; letter-spacing: 0; margin-left: 4px; }
+    .affichage .chaud dd { color: var(--piste); }
+
+    section { margin-top: 56px; }
+    h2 { font-size: clamp(24px, 2.6vw, 32px); line-height: 1.05; letter-spacing: -0.025em; margin: 0 0 6px; font-weight: 850; font-variation-settings: "wdth" 118; }
+    .sous { color: var(--encre-douce); margin: 0 0 20px; max-width: 64ch; }
+    .deux { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+    .deux section { margin-top: 0; }
+    .bloc { background: var(--papier); border-radius: 12px; padding: 24px; }
+
+    /* Barres horizontales des segments */
+    .barres { list-style: none; margin: 0; padding: 0; }
+    .barres li { display: grid; grid-template-columns: 190px 1fr 36px; gap: 12px; align-items: center; padding: 7px 0; font-size: 15px; }
+    .barres .piste { height: 14px; background: var(--craie); border-radius: 99px; overflow: hidden; }
+    .barres .piste span { display: block; height: 100%; background: var(--encre); border-radius: 99px; width: 0; transition: width .6s ease; }
+    .barres li.repli .piste span { background: var(--trait); }
+    .barres b { text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* Histogramme des scores, seuil d'alerte marqué */
+    .histo { position: relative; display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; align-items: end; height: 180px; padding-top: 22px; border-bottom: 2px solid var(--encre); }
+    .histo div { position: relative; background: var(--encre); border-radius: 4px 4px 0 0; min-height: 2px; height: 0; transition: height .6s ease; }
+    .histo div.chaud { background: var(--piste); }
+    .histo div span { position: absolute; top: -20px; left: 0; right: 0; text-align: center; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .histo-axe { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; font-size: 12px; color: var(--encre-douce); text-align: center; padding-top: 6px; }
+    .legende { font-size: 13px; color: var(--encre-douce); margin: 12px 0 0; }
+    .legende i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: var(--piste); margin-right: 6px; vertical-align: 0; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 15px; }
+    th { text-align: left; font-size: 13px; font-weight: 700; color: var(--encre-douce); padding: 0 12px 10px 0; border-bottom: 2px solid var(--encre); }
+    td { padding: 11px 12px 11px 0; border-bottom: 1px solid var(--trait); vertical-align: top; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.date { white-space: nowrap; color: var(--encre-douce); font-variant-numeric: tabular-nums; }
+    .defile { overflow-x: auto; }
+    #journal td:last-child { min-width: 240px; }
+    .score { font-weight: 800; font-variant-numeric: tabular-nums; }
+    .score.chaud { color: var(--piste); }
+    .pastille { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--craie); }
+    .pastille.repli { background: #fde3d8; color: #9a2d07; }
+    .ok { color: var(--vert); font-weight: 800; }
+    .ko { color: #c2260f; font-weight: 800; }
+
+    .eval-chiffres { display: flex; flex-wrap: wrap; gap: 12px 40px; margin: 0 0 20px; }
+    .eval-chiffres div { min-width: 140px; }
+    .eval-chiffres dt { font-size: 14px; color: var(--encre-douce); }
+    .eval-chiffres dd { margin: 2px 0 0; font-size: 34px; font-weight: 850; font-variant-numeric: tabular-nums; font-variation-settings: "wdth" 112; }
+    details summary { cursor: pointer; font-weight: 700; padding: 6px 0; }
+    details summary:focus-visible { outline: 3px solid var(--piste); outline-offset: 2px; }
+
+    footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--trait); font-size: 14px; color: var(--encre-douce); }
+
+    @media (max-width: 860px) {
+      .affichage { grid-template-columns: 1fr 1fr; }
+      .affichage div:nth-child(3) { border-left: 0; }
+      .affichage div:nth-child(n+3) { border-top: 1px solid rgba(255,255,255,.14); }
+      .deux { grid-template-columns: 1fr; gap: 56px; }
+    }
+    @media (max-width: 560px) {
+      .page { padding: 0 16px 48px; }
+      .barres li { grid-template-columns: 1fr 36px; }
+      .barres .piste { grid-column: 1 / -1; grid-row: 2; }
+      .affichage div { padding: 16px; }
+      .bloc { padding: 18px 16px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .barres .piste span, .histo div { transition: none; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <a class="logo" href="/" aria-label="Pacewell, accueil">
+        <svg width="26" height="18" viewBox="0 0 26 18" aria-hidden="true"><path d="M1 16 L8 6 L13 11 L18 2 L25 16" fill="none" stroke="#ff5a1f" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/></svg>pacewell
+      </a>
+      <nav><a href="/#dossard">S'inscrire</a></nav>
+    </header>
+
+    <h1>Le CRM, en direct.</h1>
+    <p class="chapo">Chaque inscription est qualifiée par l'IA, rangée dans un segment, accueillie par un email personnalisé, et relancée si elle décroche. Voici ce que ça donne, chiffres lus en direct dans Brevo.</p>
+    <p class="etat" id="etat" role="status">Chargement des chiffres…</p>
+
+    <dl class="affichage" aria-label="Chiffres clés">
+      <div><dt>Inscrits qualifiés</dt><dd id="k-inscrits">–</dd></div>
+      <div class="chaud"><dt>Leads chauds</dt><dd id="k-chauds">–</dd></div>
+      <div><dt>Score moyen</dt><dd id="k-score">–</dd></div>
+      <div><dt>Coût de l'IA pour 1&nbsp;000 leads</dt><dd id="k-cout">–</dd></div>
+    </dl>
+
+    <section>
+      <div class="deux">
+        <section>
+          <h2>Les segments</h2>
+          <p class="sous">Chaque segment a sa liste Brevo et ses emails. « À qualifier » : l'IA a échoué, un humain reprend.</p>
+          <div class="bloc"><ul class="barres" id="segments"></ul></div>
+        </section>
+        <section>
+          <h2>Les scores</h2>
+          <p class="sous">Potentiel d'achat sur un an, de 0 à 100. Au-dessus du seuil, une alerte part vers le commercial.</p>
+          <div class="bloc">
+            <div class="histo" id="histo" role="img" aria-label="Répartition des scores par tranche de 10 points"></div>
+            <div class="histo-axe" aria-hidden="true"><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span><span>90</span></div>
+            <p class="legende"><i></i>Au-dessus du seuil d'alerte (<span id="seuil">70</span>)</p>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section>
+      <h2>Les emails envoyés</h2>
+      <p class="sous">Sur les 90 derniers jours, d'après Brevo. Les relances ne partent qu'après validation humaine : <span id="relances">–</span>.</p>
+      <div class="bloc defile">
+        <table>
+          <thead><tr><th>Email</th><th class="n">Envoyés</th><th class="n">Délivrés</th><th class="n">Ouverts</th><th class="n">Cliqués</th></tr></thead>
+          <tbody id="emails"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Le journal des décisions de l'IA</h2>
+      <p class="sous">Les dernières qualifications, avec la raison donnée par l'IA. Aucune donnée personnelle n'est affichée, et l'IA n'en reçoit pas non plus.</p>
+      <div class="bloc defile">
+        <table>
+          <thead><tr><th>Date</th><th>Segment</th><th class="n">Score</th><th>Par</th><th>Raison</th></tr></thead>
+          <tbody id="journal"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="evaluation">
+      <h2>L'IA évaluée sur 30 profils</h2>
+      <p class="sous" id="eval-intro">30 profils de coureurs annotés à la main, passés dans le même prompt et les mêmes garde-fous qu'en production.</p>
+      <div class="bloc" id="eval-bloc"><p class="sous" style="margin:0">Évaluation pas encore publiée.</p></div>
+    </section>
+
+    <footer>
+      Pacewell est une marque fictive : ce tableau de bord fait partie d'une démonstration de Simon Delrue, développeur web &amp; IA.
+      Code source : <a href="https://github.com/freddiiee34/pacewell-crm">github.com/freddiiee34/pacewell-crm</a>.
+    </footer>
+  </div>
+
+  <script>
+    // Chiffres agrégés par le workflow n8n « Pacewell · Statistiques ».
+    const STATS = "https://n8n.simondelrue.fr/webhook/pacewell-stats";
+    const $ = (id) => document.getElementById(id);
+    const nombre = (n) => new Intl.NumberFormat("fr-FR").format(n);
+    const texte = (balise, contenu, classe) => {
+      const el = document.createElement(balise);
+      if (contenu !== undefined) el.textContent = contenu;
+      if (classe) el.className = classe;
+      return el;
+    };
+    const ligne = (cellules) => {
+      const tr = document.createElement("tr");
+      cellules.forEach((c) => tr.appendChild(c));
+      return tr;
+    };
+    const dateCourte = (iso) => iso ? new Date(iso + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) : "–";
+
+    function afficher(s) {
+      $("k-inscrits").textContent = nombre(s.inscrits);
+      $("k-chauds").textContent = nombre(s.leadsChauds);
+      $("k-score").innerHTML = "";
+      $("k-score").append(String(s.scoreMoyen), texte("small", "/100"));
+      // Coût de qualification réellement mesuré, ramené à 1 000 inscrits.
+      $("k-cout").innerHTML = "";
+      $("k-cout").append((s.ia.coutMoyenUsd * 1000).toLocaleString("fr-FR", { maximumFractionDigits: 2 }), texte("small", "$"));
+      $("seuil").textContent = s.seuilLeadChaud;
+
+      const segments = Object.entries(s.segments);
+      const max = Math.max(1, ...segments.map(([, v]) => v.nombre));
+      $("segments").replaceChildren(...segments.map(([cle, v]) => {
+        const li = document.createElement("li");
+        if (cle === "A_QUALIFIER") li.className = "repli";
+        const piste = texte("span", undefined, "piste");
+        const barre = document.createElement("span");
+        piste.appendChild(barre);
+        li.append(texte("span", v.libelle), piste, texte("b", nombre(v.nombre)));
+        requestAnimationFrame(() => { barre.style.width = (v.nombre / max * 100) + "%"; });
+        return li;
+      }));
+
+      const maxT = Math.max(1, ...s.tranchesScore.map((t) => t.nombre));
+      $("histo").replaceChildren(...s.tranchesScore.map((t) => {
+        const d = document.createElement("div");
+        if (t.de >= s.seuilLeadChaud) d.className = "chaud";
+        d.title = `${t.de} à ${t.a} : ${t.nombre}`;
+        if (t.nombre) d.appendChild(texte("span", t.nombre));
+        requestAnimationFrame(() => { d.style.height = (t.nombre / maxT * 100) + "%"; });
+        return d;
+      }));
+
+      const r = s.relances;
+      $("relances").textContent = `${r.envoyees} envoyée${r.envoyees > 1 ? "s" : ""}, ${r.ignorees} écartée${r.ignorees > 1 ? "s" : ""}, ${r.proposees} en attente`;
+      $("emails").replaceChildren(...Object.values(s.emails).map((e) => ligne([
+        texte("td", e.libelle), texte("td", nombre(e.envoyes), "n"), texte("td", nombre(e.delivres), "n"),
+        texte("td", nombre(e.ouvertures), "n"), texte("td", nombre(e.clics), "n"),
+      ])));
+
+      $("journal").replaceChildren(...(s.journal.length ? s.journal.map((j) => {
+        const par = texte("td");
+        par.appendChild(texte("span", j.source, "pastille" + (j.source === "Repli" ? " repli" : "")));
+        return ligne([
+          texte("td", dateCourte(j.date), "date"), texte("td", j.segment),
+          texte("td", j.score, "n score" + (j.score >= s.seuilLeadChaud ? " chaud" : "")), par, texte("td", j.raison),
+        ]);
+      }) : [ligne([texte("td", "Aucune inscription pour l'instant.")])]));
+
+      const maj = new Date(s.misAJour);
+      $("etat").textContent = `Mis à jour à ${maj.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}, avec le modèle ${s.ia.modele}.`;
+    }
+
+    function afficherEvaluation(ev) {
+      $("eval-intro").textContent = `30 profils de coureurs annotés à la main, passés le ${new Date(ev.date + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })} dans le même prompt et les mêmes garde-fous qu'en production.`;
+      const chiffres = document.createElement("dl");
+      chiffres.className = "eval-chiffres";
+      [["Bon segment", `${ev.segmentsCorrects}/${ev.profils}`], ["Bonne température", `${ev.temperaturesCorrectes}/${ev.profils}`],
+       ["Replis", String(ev.replis)], ["Coût total", `${(ev.coutTotalUsd * 100).toLocaleString("fr-FR", { maximumFractionDigits: 2 })} ct $`]]
+        .forEach(([dt, dd]) => { const d = document.createElement("div"); d.append(texte("dt", dt), texte("dd", dd)); chiffres.appendChild(d); });
+      const note = texte("p", "« Température » : froid sous 40, tiède de 40 à 69, chaud à partir de 70. Pour les profils limites, deux températures sont acceptées.", "sous");
+      const details = document.createElement("details");
+      details.appendChild(texte("summary", "Voir les 30 profils"));
+      const tableau = document.createElement("div");
+      tableau.className = "defile";
+      const table = document.createElement("table");
+      table.innerHTML = '<thead><tr><th>Profil</th><th>Attendu</th><th>Obtenu</th><th class="n">Score</th><th>Segment</th><th>Température</th></tr></thead>';
+      const corps = document.createElement("tbody");
+      ev.details.forEach((d) => corps.appendChild(ligne([
+        texte("td", d.note), texte("td", d.attendu.segment), texte("td", d.obtenu.segment), texte("td", d.obtenu.score, "n score"),
+        texte("td", d.segmentCorrect ? "Oui" : "Non", d.segmentCorrect ? "ok" : "ko"),
+        texte("td", d.temperatureCorrecte ? "Oui" : "Non", d.temperatureCorrecte ? "ok" : "ko"),
+      ])));
+      table.appendChild(corps);
+      tableau.appendChild(table);
+      details.appendChild(tableau);
+      $("eval-bloc").replaceChildren(chiffres, note, details);
+    }
+
+    fetch(STATS).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(afficher).catch(() => {
+      $("etat").textContent = "Les chiffres en direct ne sont pas joignables pour le moment. Réessaie dans quelques minutes.";
+      $("etat").className = "etat erreur";
+    });
+    fetch("/evaluation.json").then((r) => r.ok ? r.json() : null).then((ev) => { if (ev) afficherEvaluation(ev); }).catch(() => {});
+  </script>
+</body>
+</html>

@@ -25,6 +25,7 @@ return {
       SOURCE_QUALIF: q.source,
       COUT_IA_USD: q.cout_usd,
       QUALIFIE_LE: new Date().toISOString().slice(0, 10),
+      DERNIERE_ACTIVITE: new Date().toISOString().slice(0, 10),
     },
     listIds: idListe ? [idListe] : [],
     unlinkListIds: autres,

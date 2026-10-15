@@ -150,5 +150,16 @@ test("alerte : contenu échappé, réponse directe au lead", () => {
   assert.ok(r.email.htmlContent.includes('Jo&lt;b&gt;'));
   assert.ok(r.email.htmlContent.includes('a &amp; b'));
   assert.equal(r.email.replyTo.email, 'julie@exemple.fr');
-  assert.equal(r.email.to[0].email, 'simondelruepro@gmail.com');
+  assert.equal(r.email.to[0].email, 'simon59117@gmail.com');
+});
+
+test("alerte : objet sans emoji, version texte, réponses lisibles", () => {
+  const q = { segment: 'TRAIL_ENDURANCE', niveau: 'confirme', score: 88, raison: 'Ultra.', source: 'ia' };
+  const r = executer('07_alerte.js', {}, { ...CONF, 'Préparer Brevo': { lead: { ...LEAD, objectif: 'ultra', budget: '400-plus' }, qualification: q } });
+  assert.match(r.email.subject, /^Lead chaud .+ \(88\/100\)$/);
+  assert.doesNotMatch(r.email.subject, /\p{Extended_Pictographic}/u);
+  assert.ok(r.email.textContent.includes('Score : 88/100'));
+  assert.ok(r.email.textContent.includes('Trail · Endurance et ultra'));
+  assert.ok(r.email.htmlContent.includes('Plus de 400 €'));
+  assert.ok(r.email.htmlContent.includes('width:88%'));
 });
